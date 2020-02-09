@@ -1,0 +1,27 @@
+$(arg veh)/camera_node/camera_info
+$(arg veh)/joy
+$(arg veh)/camera_node/image/compressed
+$(arg veh)/wheels_driver_node/wheels_cmd
+$(arg veh)/fsm_node/mode
+$(arg veh)/car_cmd_switch_node/cmd
+$(arg veh)/velocity_to_pose_node/pose
+$(arg veh)/light_sensor_node/sensor_data
+
+
+{'/avlduck3/velocity_to_pose_node/pose': 
+    TopicTuple(msg_type='duckietown_msgs/Pose2DStamped', message_count=2408, connections=1, frequency=43.0954112981115), 
+
+'/avlduck3/wheels_driver_node/wheels_cmd': 
+    TopicTuple(msg_type='duckietown_msgs/WheelsCmdStamped', message_count=2408, connections=1, frequency=43.15216362476594), 
+
+'/avlduck3/joy': 
+    TopicTuple(msg_type='sensor_msgs/Joy', message_count=2409, connections=1, frequency=43.97075119118133), 
+
+'/avlduck3/car_cmd_switch_node/cmd': 
+    TopicTuple(msg_type='duckietown_msgs/Twist2DStamped', message_count=2408, connections=1, frequency=43.43188501843184), 
+    
+'/avlduck3/camera_node/image/compressed': 
+    TopicTuple(msg_type='sensor_msgs/CompressedImage', message_count=3684, connections=1, frequency=29.99445064218084), 
+    
+'/avlduck3/camera_node/camera_info': 
+    TopicTuple(msg_type='sensor_msgs/CameraInfo', message_count=3683, connections=1, frequency=30.012801385325993)}

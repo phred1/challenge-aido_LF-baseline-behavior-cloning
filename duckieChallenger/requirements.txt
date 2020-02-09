@@ -1,0 +1,7 @@
+opencv-python
+numpy
+aido-protocols-daffy
+duckietown-world-daffy
+duckietown-challenges-daffy
+sklearn
+keras

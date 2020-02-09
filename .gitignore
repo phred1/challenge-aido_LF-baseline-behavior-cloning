@@ -1,0 +1,5 @@
+*.bag
+*.log
+.vscode/
+logs/
+*.h5
