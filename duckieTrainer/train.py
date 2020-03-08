@@ -45,15 +45,11 @@ def rmse(y_true, y_pred):
     return backend.sqrt(backend.mean(backend.square(y_pred - y_true), axis=-1))
 
 # mean squared error (mse) for regression
-
-
 def mse(y_true, y_pred):
     from keras import backend
     return backend.mean(backend.square(y_pred - y_true), axis=-1)
 
 # coefficient of determination (R^2) for regression
-
-
 def r_square(y_true, y_pred):
     from keras import backend as K
     SS_res = K.sum(K.square(y_true - y_pred))
@@ -98,12 +94,16 @@ tensorboard = tf.keras.callbacks.TensorBoard(
     log_dir='logs/{}'.format(time.ctime()))
 
 # 10. checkpoint
+#? Keep track of the best validation loss model
 filepath1 = "FrankNetBest_Validation.h5"
 checkpoint1 = tf.keras.callbacks.ModelCheckpoint(
     filepath1, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+
+#? Keep track of the best loss model
 filepath2 = "FrankNetBest_Loss.h5"
 checkpoint2 = tf.keras.callbacks.ModelCheckpoint(
     filepath2, monitor='loss', verbose=1, save_best_only=True, mode='min')
+
 callbacks_list = [checkpoint1, checkpoint2, tensorboard]
 
 # 11. GO!
