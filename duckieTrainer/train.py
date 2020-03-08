@@ -10,7 +10,7 @@ import os
 #! Training Configuration
 EPOCHS = 1000000 #EPOCHS
 INIT_LR = 1e-3   #LEARNING RATE
-BS = 32          #Batch Size 
+BS = 8          #Batch Size 
 GPU_COUNT = 1    # Change this value if you are using multiple GPUs
 MULTI_GPU = False #Change this to enable multi-GPU
 

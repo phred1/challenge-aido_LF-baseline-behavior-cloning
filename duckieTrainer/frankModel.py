@@ -1,71 +1,71 @@
 import tensorflow as tf
-#from tensorflow.keras.layers import Conv2D,Activation,Lambda
+from tensorflow.keras.layers import Conv2D,Activation,Lambda,Flatten,Dense
 #! Model in reference to Nvidia's Behavior Cloning Paper.
 
 class FrankNet:
     @staticmethod
     def build_linear_branch(inputs=(150, 200, 3)):
         # ? Input Normalization
-        x = tf.keras.layers.Lambda(lambda x: x/255.0)(inputs)
+        x = Lambda(lambda x: x/255.0)(inputs)
 
         # ? L1: CONV => RELU
-        x = tf.keras.layers.Conv2D(24, (5, 5), strides=(2, 2), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(24, (5, 5), strides=(2, 2), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L2: CONV => RELU
-        x = tf.keras.layers.Conv2D(36, (5, 5), strides=(2, 2), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(36, (5, 5), strides=(2, 2), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L3: CONV => RELU
-        x = tf.keras.layers.Conv2D(48, (5, 5), strides=(2, 2), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(48, (5, 5), strides=(2, 2), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L4: CONV => RELU
-        x = tf.keras.layers.Conv2D(64, (3, 3), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(64, (3, 3), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L5: CONV => RELU
-        x = tf.keras.layers.Conv2D(64, (3, 3), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(64, (3, 3), padding="valid")(x)
+        x = Activation("relu")(x)
 
         # ? Flatten
-        x = tf.keras.layers.Flatten()(x)
+        x = Flatten()(x)
 
         # ? Fully Connected
-        x = tf.keras.layers.Dense(1164, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(100, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(50, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(10, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(1, kernel_initializer='normal', name="Linear")(x)
+        x = Dense(1164, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(100, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(50, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(10, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(1, kernel_initializer='normal', name="Linear")(x)
 
         return x
 
     @staticmethod
     def build_angular_branch(inputs=(150, 200, 3)):
         # ? Input Normalization
-        x = tf.keras.layers.Lambda(lambda x: x/255.0)(inputs)
+        x = Lambda(lambda x: x/255.0)(inputs)
 
         # ? L1: CONV => RELU
-        x = tf.keras.layers.Conv2D(24, (5, 5), strides=(2, 2), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(24, (5, 5), strides=(2, 2), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L2: CONV => RELU
-        x = tf.keras.layers.Conv2D(36, (5, 5), strides=(2, 2), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(36, (5, 5), strides=(2, 2), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L3: CONV => RELU
-        x = tf.keras.layers.Conv2D(48, (5, 5), strides=(2, 2), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(48, (5, 5), strides=(2, 2), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L4: CONV => RELU
-        x = tf.keras.layers.Conv2D(64, (3, 3), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(64, (3, 3), padding="valid")(x)
+        x = Activation("relu")(x)
         # ? L5: CONV => RELU
-        x = tf.keras.layers.Conv2D(64, (3, 3), padding="valid")(x)
-        x = tf.keras.layers.Activation("relu")(x)
+        x = Conv2D(64, (3, 3), padding="valid")(x)
+        x = Activation("relu")(x)
 
         # ? Flatten
-        x = tf.keras.layers.Flatten()(x)
+        x = Flatten()(x)
 
         # ? Fully Connected
-        x = tf.keras.layers.Dense(1164, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(100, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(50, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(10, kernel_initializer='normal', activation='relu')(x)
-        x = tf.keras.layers.Dense(1, kernel_initializer='normal', name="Angular")(x)
+        x = Dense(1164, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(100, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(50, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(10, kernel_initializer='normal', activation='relu')(x)
+        x = Dense(1, kernel_initializer='normal', name="Angular")(x)
 
         return x
 
