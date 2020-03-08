@@ -4,3 +4,5 @@
 logs/
 *.h5
 Duckietown Quick Reference
+__pycache__
+trainedModel
