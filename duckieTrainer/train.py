@@ -1,34 +1,17 @@
-from frankmodel import FrankNet
+import tensorflow as tf
+from frankmodel import FrankNet  # The model we are gonna use to train
 from log_reader import Reader
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelBinarizer
-from sklearn.utils import shuffle
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
-from keras.utils import multi_gpu_model
-from keras.utils import plot_model
-from keras.callbacks import TensorBoard
 import time
 import numpy as np
-import tensorflow as tf
 from pathlib import Path
-import matplotlib.pyplot as plt
-import os
-import csv
-import cv2
-import math
-import random
-import matplotlib
-import tkinter
-
-matplotlib.use('TkAgg')
 
 
 #! Training Configuration
 EPOCHS = 10000
 INIT_LR = 1e-3
 BS = 64
-GPU_COUNT = 3
+GPU_COUNT = 1  # Change this value if you are using multiple GPUs
 
 #! Log Interpretation
 STORAGE_LOCATION = "trained_models/behavioral_cloning"
@@ -56,7 +39,6 @@ def load_data():
 # -----------------------------------------------------------------------------
 # Define custom loss functions for regression in Keras
 # -----------------------------------------------------------------------------
-
 # root mean squared error (rmse) for regression
 def rmse(y_true, y_pred):
     from keras import backend
@@ -80,48 +62,51 @@ def r_square(y_true, y_pred):
 
 
 #!================================================================
+# 1. Load all the datas
 load_data()
 print('Load all complete')
+# 2. Split training and testing
 observation_train, observation_valid, linear_train, linear_valid, angular_train, angular_valid = train_test_split(
-    observation, linear, angular, test_size=0.2,shuffle=True)
-# define the network model
+    observation, linear, angular, test_size=0.2, shuffle=True)
+
+# 3. Build the model
 single_model = FrankNet.build(200, 150)
 
+# 4. Define the loss function and weight
 losses = {
     "Linear": "mse",
     "Angular": "mse"
 }
 lossWeights = {"Linear": 0.001, "Angular": 10.0}
 
+# 5. Select optimizer
+opt = tf.keras.optimizers.Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 
-opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
-
+# 6. Select loss metrics
 metrics_list = ["mse", rmse, r_square]
 
-model = multi_gpu_model(single_model, gpus=GPU_COUNT)
-#model = single_model
+# TODO: 7. Select if multi GPU training or single GPU training.
+# model = tf.keras.utils.multi_gpu_model(single_model, gpus=GPU_COUNT) #TODO: Fix using the tf.distribute
+model = single_model
 
+# 8. Compile model and plot to see
 model.compile(optimizer=opt, loss=losses, loss_weights=lossWeights,
               metrics=metrics_list)
 
-plot_model(model, to_file='model.png')
+# 9. Setup tensorboard
+tensorboard = tf.keras.callbacks.TensorBoard(
+    log_dir='logs/{}'.format(time.ctime()))
 
-# tensorboard
-tensorboard = TensorBoard(log_dir='logs/{}'.format(time.ctime()))
-
-# checkpoint
+# 10. checkpoint
 filepath1 = "FrankNetBest_Validation.h5"
-checkpoint1 = ModelCheckpoint(
+checkpoint1 = tf.keras.callbacks.ModelCheckpoint(
     filepath1, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 filepath2 = "FrankNetBest_Loss.h5"
-checkpoint2 = ModelCheckpoint(
-    filepath2, monitor='loss', verbose=1, save_best_only=True, mode='min')    
+checkpoint2 = tf.keras.callbacks.ModelCheckpoint(
+    filepath2, monitor='loss', verbose=1, save_best_only=True, mode='min')
+callbacks_list = [checkpoint1, checkpoint2, tensorboard]
 
-callbacks_list = [checkpoint1,checkpoint2, tensorboard]
-# history = model.fit(observation,
-#                     {"Linear": linear,
-#                         "Angular": angular}, 
-#                     epochs=EPOCHS, callbacks=callbacks_list, verbose=1)
+# 11. GO!
 history = model.fit(observation_train,
                     {"Linear": linear_train,
                         "Angular": angular_train}, validation_data=(observation_valid, {
