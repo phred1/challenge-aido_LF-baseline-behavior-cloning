@@ -8,11 +8,11 @@ import os
 
 
 #! Training Configuration
-EPOCHS = 10000
-INIT_LR = 1e-3
-BS = 64
-GPU_COUNT = 1  # Change this value if you are using multiple GPUs
-
+EPOCHS = 1000000 #EPOCHS
+INIT_LR = 1e-3   #LEARNING RATE
+BS = 32          #Batch Size 
+GPU_COUNT = 1    # Change this value if you are using multiple GPUs
+MULTI_GPU = False #Change this to enable multi-GPU
 
 #! Log Interpretation
 STORAGE_LOCATION = "trained_models/behavioral_cloning"
@@ -63,6 +63,8 @@ def r_square(y_true, y_pred):
 # 0. Create directories
 try:
     os.makedirs("trainedModel")
+except FileExistsError:
+    print("Directory already exists!")
 except OSError:
     print("Create folder for trained model failed. Please check system permissions.")
     exit()    
@@ -91,9 +93,13 @@ opt = tf.keras.optimizers.Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 # 6. Select loss metrics
 metrics_list = ["mse", rmse, r_square]
 
-# TODO: 7. Select if multi GPU training or single GPU training.
-# model = tf.keras.utils.multi_gpu_model(single_model, gpus=GPU_COUNT) #TODO: Fix using the tf.distribute
-model = single_model
+# 7. Select if multi GPU training or single GPU training.
+if MULTI_GPU:
+    print("Currently using multiple GPUs")
+    model = tf.keras.utils.multi_gpu_model(single_model, gpus=GPU_COUNT) #TODO: Fix using the tf.distribute
+else:
+    print("Currently using single GPUs")
+    model = single_model
 
 # 8. Compile model and plot to see
 model.compile(optimizer=opt, loss=losses, loss_weights=lossWeights,
