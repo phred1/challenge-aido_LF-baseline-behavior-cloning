@@ -1,7 +1,7 @@
 # Definition of Submission container
 
 # We start from tensorflow-gpu image
-FROM tensorflow/tensorflow:1.13.2-gpu-py3
+FROM tensorflow/tensorflow:2.1.0-gpu-py3
 
 # this line prevents interaction with tzdata package
 ENV DEBIAN_FRONTEND=noninteractive
@@ -37,8 +37,7 @@ RUN pip3 install -r requirements.txt
 # if you have more file use the COPY command to move them to the workspace
 COPY solution.py /workspace
 COPY FrankNet.h5 /workspace
-COPY _ik.py /workspace
-COPY _val_function.py /workspace
+COPY helperFncs.py /workspace
 # we make the workspace our working directory
 WORKDIR /workspace
 

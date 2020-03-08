@@ -9,6 +9,4 @@ challenge: [aido3-off-LF-sim-validation]
 #challenge: [aido3-off-LFVI-real-validation] # This will submit to all available challenges.
 user-label: "challenge-aido_LF-baseline-behavior-cloning"
 description: |
-    This is a simple template for an agent that uses Tensorflow for inference.
-
-    [This code is documented here](https://github.com/CWRU-AutonomousVehiclesLab).
+    This is a template for an agent that uses Tensorflow for inference.
