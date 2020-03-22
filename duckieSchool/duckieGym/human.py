@@ -292,28 +292,3 @@ pyglet.app.run()
 datagen.close()
 rawlog.close()
 env.close()
-
-"""
-info =
-{
-    'Simulator': {'action': [0.0, 0.0],
-                  'lane_position': {'dist': -0.10193018762150585, 'dot_dir': 0.9889530619130491, 'angle_deg': -8.524309397548494, 'angle_rad': -0.14877726544591546},
-                  'robot_speed': 0.01659266200857738,
-                  'proximity_penalty': 0.0,
-                  'cur_pos': [0.8925698123784941, 0.0, 3.854114365570883],
-                  'cur_angle': 1.719573592240812,
-                  'wheel_velocities': [0.0, 0.0],
-                  'timestamp': 41.000000000000234,
-                  'tile_coords': [1, 6],
-                  'msg': ''
-                  },
-
-    'DuckietownEnv': {'k': 27.0,
-                      'gain': 1.0,
-                      'train': 0.0,
-                      'radius': 0.0318,
-                      'omega_r': 0.0,
-                      'omega_l': 0.0
-                      }
-}
-"""
