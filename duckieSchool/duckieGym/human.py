@@ -15,18 +15,12 @@ import gym
 import numpy as np
 import pyglet
 import math
-from _loggers import Logger
+from helperfnc import Logger,SteeringToWheelVelWrapper
 import logging
 
 from pyglet.window import key
 
 from gym_duckietown.envs import DuckietownEnv
-
-from distortion import Distortion
-from pwmcalculator import SteeringToWheelVelWrapper
-
-#! Camera Distorters
-distorter = Distortion()
 
 #! PWM Calculator
 pwm_converter = SteeringToWheelVelWrapper()
@@ -40,12 +34,19 @@ logger.setLevel(logging.WARNING)
 parser = argparse.ArgumentParser()
 parser.add_argument('--env-name', default=None)
 parser.add_argument('--map-name', default='small_loop_cw')
-parser.add_argument('--draw-curve', default=False, action='store_true',
+parser.add_argument('--draw-curve', default=False,
                     help='draw the lane following curve')
-parser.add_argument('--draw-bbox', default=False, action='store_true',
+parser.add_argument('--draw-bbox', default=False,
                     help='draw collision detection bounding boxes')
-parser.add_argument('--domain-rand', default=True, action='store_true',
+parser.add_argument('--domain-rand', default=True,
                     help='enable domain randomization')
+parser.add_argument('--playback', default=True,
+                    help='enable playback after each session')
+parser.add_argument('--distortion', default=True)
+
+parser.add_argument('--raw-log', default=True,
+                    help='enables recording high resolution raw log')
+parser.add_argument('--steps',default=1500,help='number of steps to record in one batch')
 
 args = parser.parse_args()
 
@@ -64,11 +65,11 @@ def sleep_after_reset(seconds):
 if args.env_name is None:
     env = DuckietownEnv(
         map_name="loop_pedestrians",
-        max_steps=1500,
+        max_steps=args.steps,
         draw_curve=args.draw_curve,
         draw_bbox=args.draw_bbox,
-        domain_rand=False,
-        distortion=0,
+        domain_rand=args.domain_rand,
+        distortion=args.distortion,
         accept_start_angle_deg=4,
         full_transparency=True,
     )
@@ -90,25 +91,26 @@ last_reward = 0
 
 def playback():
     #! Render Image
-    for entry in rawlog.recording:
-        step = entry['step']
-        meta = entry['metadata']
-        action = step[1]
-        x = action[0]
-        z = action[1]
-        canvas = step[0].copy()
-        reward = meta[1]
-        pwm_left, pwm_right = pwm_converter.convert(x, z)
-        print('Linear: ', x, ' Angular: ', z, 'Left PWM: ', round(
-            pwm_left, 3), ' Right PWM: ', round(pwm_right, 3), ' Reward: ', round(reward, 2))
-        #! Speed bar indicator
-        cv2.rectangle(canvas, (20, 240), (50, int(240-220*x)),
-                      (76, 84, 255), cv2.FILLED)
-        cv2.rectangle(canvas, (320, 430), (int(320-150*z), 460),
-                      (76, 84, 255), cv2.FILLED)
+    if args.playback & args.raw_log:
+        for entry in rawlog.recording:
+            step = entry['step']
+            meta = entry['metadata']
+            action = step[1]
+            x = action[0]
+            z = action[1]
+            canvas = step[0].copy()
+            reward = meta[1]
+            pwm_left, pwm_right = pwm_converter.convert(x, z)
+            print('Linear: ', x, ' Angular: ', z, 'Left PWM: ', round(
+                pwm_left, 3), ' Right PWM: ', round(pwm_right, 3), ' Reward: ', round(reward, 2))
+            #! Speed bar indicator
+            cv2.rectangle(canvas, (20, 240), (50, int(240-220*x)),
+                        (76, 84, 255), cv2.FILLED)
+            cv2.rectangle(canvas, (320, 430), (int(320-150*z), 460),
+                        (76, 84, 255), cv2.FILLED)
 
-        cv2.imshow('Playback', canvas)
-        cv2.waitKey(20)
+            cv2.imshow('Playback', canvas)
+            cv2.waitKey(20)
 
     qa = input('1 to commit, 2 to abort:        ')
     #! User interaction for log selection
@@ -241,11 +243,9 @@ def update(dt):
               ' speed. Score: ', reward)
         if ((reward > last_reward-0.02) or True):
             print('log')
-            #! Distort image for storage
-            obs_distorted = distorter.distort(obs)
 
             #! resize to Nvidia standard:
-            obs_distorted_DS = image_resize(obs_distorted, width=200)
+            obs_distorted_DS = image_resize(obs, width=200)
 
             #! ADD IMAGE-PREPROCESSING HERE!!!!!
             height, width = obs_distorted_DS.shape[:2]
