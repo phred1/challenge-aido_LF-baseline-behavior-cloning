@@ -61,6 +61,9 @@ class TensorflowTemplateAgent:
     #! Major Manipulation here Should not always change
     def on_received_get_commands(self, context: Context):
         linear, angular = self.compute_action(self.to_predictor)
+        #！ Speed surpression:
+        linear = linear * 0.85
+        angular = angular * 0.95
         #! Inverse Kinematics
         pwm_left, pwm_right = convertion_wrapper.convert(linear, angular)
         pwm_left = float(np.clip(pwm_left, -1, +1))

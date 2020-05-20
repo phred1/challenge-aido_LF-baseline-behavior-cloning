@@ -4,6 +4,7 @@
 
 <a href="http://aido.duckietown.org"><img width="200" src="https://www.duckietown.org/wp-content/uploads/2018/12/AIDO_no_text-e1544555660271.png"/></a>
 
+## This is a BETA fork. DO NOT USE!
 
 ## Baseline "Behavior Cloning" for challenge [`aido_LF`][lf], [`aido_LFV`][lfv] and [`aido_LFVI`][lfvi]
 
