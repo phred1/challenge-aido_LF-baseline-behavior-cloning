@@ -1,0 +1,6 @@
+aido-protocols-daffy
+duckietown-world-daffy
+duckietown-challenges-daffy
+numpy
+opencv-python
+keras==2.3.1
