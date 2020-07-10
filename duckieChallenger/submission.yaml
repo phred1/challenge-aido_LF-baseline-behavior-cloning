@@ -7,6 +7,6 @@
 protocol: aido2_db18_agent-z2
 challenge: [aido3-off-LF-sim-validation]
 #challenge: [aido3-off-LFVI-real-validation] # This will submit to all available challenges.
-user-label: "FrankNet-V2-2020_05_20_SS"
+user-label: "TF version fix 1353"
 description: |
     This is a template for an agent that uses Tensorflow for inference.
