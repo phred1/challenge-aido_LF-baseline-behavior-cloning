@@ -1,7 +1,7 @@
 # Definition of Submission container
 
 # We start from tensorflow-gpu image
-FROM tensorflow/tensorflow:2.1.0-gpu-py3
+FROM tensorflow/tensorflow:2.2.0-gpu
 
 # this line prevents interaction with tzdata package
 ENV DEBIAN_FRONTEND=noninteractive

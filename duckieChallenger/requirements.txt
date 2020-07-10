@@ -4,4 +4,4 @@ duckietown-challenges-daffy
 keras
 numpy
 opencv-python
-sklearn
+scikit-learn
