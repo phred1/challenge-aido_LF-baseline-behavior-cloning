@@ -23,9 +23,17 @@ class TensorflowTemplateAgent:
         # define observation and output shapes
         self.dependencies = {'rmse': eval_func.rmse, 'mse': eval_func.mse,
                              'r_square': eval_func.r_square, 'r_square_loss': eval_func.r_square_loss}
-        self.model = tf.keras.models.load_model(
-            MODEL, custom_objects=self.dependencies)
-        print("TF version: ", tf.__version__)
+        try:
+            self.model = tf.keras.models.load_model(
+                MODEL, custom_objects=self.dependencies)
+        except Exception:
+            import keras
+            if (keras.__version__ == '2.3.1'):
+                self.model = keras.models.load_model(
+                    MODEL, custom_objects=self.dependencies)
+            else:
+                raise Exception("Attemped TF1.x model without 1.x env. Please use legacy file!")
+
         self.current_image = np.zeros(expect_shape)
         self.input_image = np.zeros((150, 200, 3))
         self.to_predictor = np.expand_dims(self.input_image, axis=0)
@@ -61,6 +69,9 @@ class TensorflowTemplateAgent:
     #! Major Manipulation here Should not always change
     def on_received_get_commands(self, context: Context):
         linear, angular = self.compute_action(self.to_predictor)
+        #！ Speed surpression:
+        linear = linear * 0.85
+        angular = angular * 0.95
         #! Inverse Kinematics
         pwm_left, pwm_right = convertion_wrapper.convert(linear, angular)
         pwm_left = float(np.clip(pwm_left, -1, +1))

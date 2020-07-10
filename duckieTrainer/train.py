@@ -5,14 +5,15 @@ from sklearn.model_selection import train_test_split
 import time
 import numpy as np
 import os
-
+print("Observed TF Version: ",tf.__version__)
+print("Observed Numpy Version: ",np.__version__)
 
 #! Training Configuration
 EPOCHS = 1000000 #EPOCHS
 INIT_LR = 1e-3   #LEARNING RATE
 BS = 8          #Batch Size 
 GPU_COUNT = 1    # Change this value if you are using multiple GPUs
-MULTI_GPU = False #Change this to enable multi-GPU
+MULTI_GPU = True #Change this to enable multi-GPU
 
 #! Log Interpretation
 STORAGE_LOCATION = "trained_models/behavioral_cloning"
@@ -43,17 +44,17 @@ def load_data():
 # -----------------------------------------------------------------------------
 # root mean squared error (rmse) for regression
 def rmse(y_true, y_pred):
-    from keras import backend
+    from tensorflow.keras import backend
     return backend.sqrt(backend.mean(backend.square(y_pred - y_true), axis=-1))
 
 # mean squared error (mse) for regression
 def mse(y_true, y_pred):
-    from keras import backend
+    from tensorflow.keras import backend
     return backend.mean(backend.square(y_pred - y_true), axis=-1)
 
 # coefficient of determination (R^2) for regression
 def r_square(y_true, y_pred):
-    from keras import backend as K
+    from tensorflow.keras import backend
     SS_res = K.sum(K.square(y_true - y_pred))
     SS_tot = K.sum(K.square(y_true - K.mean(y_true)))
     return (1 - SS_res/(SS_tot + K.epsilon()))
@@ -77,8 +78,20 @@ print('Load all complete')
 observation_train, observation_valid, linear_train, linear_valid, angular_train, angular_valid = train_test_split(
     observation, linear, angular, test_size=0.2, shuffle=True)
 
-# 3. Build the model
-single_model = FrankNet.build(200, 150)
+# 3. Build the model using strategy
+if MULTI_GPU:
+    print("Currently using multiple GPUs")
+    if tf.config.list_physical_devices('gpu'):
+        strategy = tf.distribute.MirroredStrategy()
+    else:
+        print("Selected MultiGPU but only observe single GPU. Cancel Multi GPU training!")
+        strategy = tf.distribute.get_strategy()
+else:
+    print("Currently using single GPUs")
+    strategy = tf.distribute.get_strategy()
+
+with strategy.scope():
+    model = FrankNet.build(200, 150)
 
 # 4. Define the loss function and weight
 losses = {
@@ -92,14 +105,6 @@ opt = tf.keras.optimizers.Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 
 # 6. Select loss metrics
 metrics_list = ["mse", rmse, r_square]
-
-# 7. Select if multi GPU training or single GPU training.
-if MULTI_GPU:
-    print("Currently using multiple GPUs")
-    model = tf.keras.utils.multi_gpu_model(single_model, gpus=GPU_COUNT) #TODO: Fix using the tf.distribute
-else:
-    print("Currently using single GPUs")
-    model = single_model
 
 # 8. Compile model and plot to see
 model.compile(optimizer=opt, loss=losses, loss_weights=lossWeights,
@@ -127,6 +132,6 @@ history = model.fit(observation_train,
                     {"Linear": linear_train,
                         "Angular": angular_train}, validation_data=(observation_valid, {
                             "Linear": linear_valid, "Angular": angular_valid}),
-                    epochs=EPOCHS, callbacks=callbacks_list, verbose=1)
+                    epochs=EPOCHS, callbacks=callbacks_list, verbose=0)
 
 model.save('trainedModel/FrankNet.h5')
