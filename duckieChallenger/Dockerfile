@@ -1,9 +1,9 @@
 # Definition of Submission container
 
 # We start from tensorflow-gpu image
-ARG UBUNTU_VERSION=18.04
+ARG UBUNTU_VERSION=16.04
 
-ARG ARCH=
+ARG ARCH
 ARG CUDA=10.0
 FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
 # ARCH and CUDA are specified again because the FROM directive resets ARGs
@@ -15,7 +15,7 @@ WORKDIR /${proj_dir}
 
 ARG ARCH
 ARG CUDA
-ARG CUDNN=7.6.5.32-1
+ARG CUDNN=7.4.1.5-1
 ARG TF_PACKAGE=tensorflow
 ARG TF_PACKAGE_VERSION=2.3.0
 
@@ -110,6 +110,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
          libc-dev\
          git \
          bzip2 \
+         libgl1-mesa-glx \
          python3-tk && \
      rm -rf /var/lib/apt/lists/*
 
@@ -123,8 +124,7 @@ RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
-COPY requirements.txt .
-RUN pip3 install --upgrade pip
+COPY requirements.* ./
 RUN pip3 install --use-feature=2020-resolver -r requirements.txt
 
 # let's copy all our solution files to our workspace
