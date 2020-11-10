@@ -19,8 +19,9 @@ logging.basicConfig(level=logging.INFO)
 EPOCHS = 100
 INIT_LR = 1e-3
 BATCH_SIZE = 64
+TRAIN_PERCENT = 0.8
 LOG_DIR = "/home/duckie/challenge-aido_LF-baseline-behavior-cloning/duckieTrainer/"
-LOG_FILE = "slimds.log"
+LOG_FILE = "train.log"
 
 EXPERIMENTAL = False
 OLD_DATASET = False
@@ -36,6 +37,7 @@ class DuckieTrainer:
         log_file,
         old_dataset,
         experimental,
+        split,
     ):
         print("Observed TF Version: ", tf.__version__)
         print("Observed Numpy Version: ", np.__version__)
@@ -68,7 +70,7 @@ class DuckieTrainer:
             angular_train,
             angular_valid,
         ) = train_test_split(
-            self.observation, self.linear, self.angular, test_size=0.2, shuffle=True
+            self.observation, self.linear, self.angular, test_size=1-split, shuffle=True
         )
 
         model = self.configure_model(lr=init_lr, epochs=epochs)
@@ -178,6 +180,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--log_file", help="Set the training log file name", default=LOG_FILE
+    )
+    parser.add_argument(
+        "--split",help="Set the training and test split point (input the percentage of training)",default=TRAIN_PERCENT
     )
 
     args = parser.parse_args()
