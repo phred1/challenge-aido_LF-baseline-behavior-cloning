@@ -8,8 +8,8 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
-from frankModel import FrankNet
-from logReader import Reader
+from frank_model import FrankNet
+from log_reader import Reader
 
 MODEL_NAME = "FrankNet"
 logging.basicConfig(level=logging.INFO)
@@ -19,8 +19,7 @@ logging.basicConfig(level=logging.INFO)
 EPOCHS = 100
 INIT_LR = 1e-3
 BATCH_SIZE = 64
-LOG_DIR = "."
-LOG_DIR = "/home/anthony/Duckietown/Datasets"
+LOG_DIR = "/home/duckie/challenge-aido_LF-baseline-behavior-cloning/duckieTrainer/"
 LOG_FILE = "slimds.log"
 
 EXPERIMENTAL = False
@@ -46,9 +45,18 @@ class DuckieTrainer:
         # 1. Load all the datas
         log_path = os.path.join(log_dir, log_file)
         logging.info(f"Loading Datafile {log_path}")
-        self.observation, self.linear, self.angular = self.get_data(
-            log_path, old_dataset
-        )
+        try:
+            self.observation, self.linear, self.angular = self.get_data(
+                log_file, old_dataset
+            )
+        except Exception:
+            try:
+                self.observation, self.linear, self.angular = self.get_data(
+                    log_file, old_dataset
+                )
+            except Exception:
+                logging.error("Loading dataset failed... exiting...")
+                exit(1)
         logging.info(f"Loading Datafile completed")
 
         # 2. Split training and testing
