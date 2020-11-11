@@ -15,7 +15,7 @@ import gym
 import numpy as np
 import pyglet
 import math
-from helperfnc import Logger,SteeringToWheelVelWrapper
+from log_util import Logger,SteeringToWheelVelWrapper
 import logging
 
 from pyglet.window import key

@@ -4,41 +4,43 @@ import os
 import pickle
 import numpy as np
 
+from typing import List,Dict
+
+from log_schema import Episode, Step
+
+SCHEMA_VERSION = "1.0.0"
+
 class Logger:
     def __init__(self, env, log_file):
         self.env = env
+        self.episode = Episode(version=SCHEMA_VERSION)
+        self.episode_count = 0
 
         self._log_file = open(log_file, 'wb')
         # we log the data in a multithreaded fashion
         self._multithreaded_recording = ThreadPoolExecutor(4)
-        self.recording = []
+        # self.recording = []
 
-    def log(self, observation, action, reward, done, info):
-        x, y, z = self.env.cur_pos
-        self.recording.append({
-            'step': [
-                observation,
-                action,
-            ],
-            # this is metadata, you may not use it at all, but it may be helpful for debugging purposes
-            'metadata': [
-                (x, y, z, self.env.cur_angle),  # we store the pose, just in case we need it
-                reward,
-                done,
-                info
-            ]
-        })
+    def log(self, step: Step, info: Dict):
+        if self.episode.metadata is None:
+            self.episode.metadata = info
+        self.episode.steps.append(step)
 
     def on_episode_done(self):
-        print('Quick write!')
-        self._multithreaded_recording.submit(self._commit)
+        print(f"episode {self.episode_count} done, writing to file")
+        # The next file cause all episodes to be written to the same pickle FP. (Overwrite first?)
+        # self._multithreaded_recording.submit(lambda: self._commit(self.episode))
+        self._commit(self.episode)
+        self.episode = Episode(version=SCHEMA_VERSION)
+        self.episode_count += 1
 
-    def _commit(self):
+    def _commit(self, episode):
         # we use pickle to store our data
-        pickle.dump(self.recording, self._log_file)
+        # pickle.dump(self.recording, self._log_file)
+        pickle.dump(episode, self._log_file)
         self._log_file.flush()
-        del self.recording[:]
-        self.recording.clear()
+        # del self.recording[:]
+        # self.recording.clear()
 
     def close(self):
         self._multithreaded_recording.shutdown()
