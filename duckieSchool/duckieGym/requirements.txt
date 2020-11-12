@@ -1,4 +1,0 @@
-opencv-python
-numpy
-tqdm
-duckietown-gym-daffy
