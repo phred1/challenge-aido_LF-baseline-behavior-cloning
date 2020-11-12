@@ -64,9 +64,10 @@ class HumanDriver:
         #! Render Image
         if args.playback:
             for entry in self.playback_buffer:
-                (canvas,action,reward)=entry
+                (recorded,action,reward)=entry
                 x = action[0]
                 z = action[1]
+                canvas = cv2.cvtColor(recorded, cv2.COLOR_YUV2RGB)
                 pwm_left, pwm_right = self.pwm_converter.convert(x, z)
                 print('Linear: ', x, ' Angular: ', z, 'Left PWM: ', round(
                     pwm_left, 3), ' Right PWM: ', round(pwm_right, 3), ' Reward: ', round(reward, 2))
@@ -88,6 +89,7 @@ class HumanDriver:
         else:
             print("Comitting Episode")
             self.datagen.on_episode_done()
+        self.playback_buffer = [] # reset playback buffer
         return        
 
     def image_resize(self,image, width=None, height=None, inter=cv2.INTER_AREA):
