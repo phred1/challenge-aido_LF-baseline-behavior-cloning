@@ -29,12 +29,6 @@ REWARD_INVALID_POSE = -1000
 pwm_converter = SteeringToWheelVelWrapper()
 
 
-#! Logger setup:
-# logging.basicConfig()
-# logger = logging.getLogger("gym-duckietown")
-# logger.setLevel(logging.WARNING)
-
-
 class DataGenerator:
     def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False):
         if not log_file:
