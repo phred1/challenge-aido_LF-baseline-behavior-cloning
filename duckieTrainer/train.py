@@ -107,7 +107,7 @@ class DuckieTrainer:
 
     def configure_model(self, lr, epochs):
         losses = {"Linear": "mse", "Angular": "mse"}
-        lossWeights = {"Linear": 1, "Angular": 2}
+        lossWeights = {"Linear": 1, "Angular": 10}
         model = FrankNet.build(200, 150)
         opt = tf.keras.optimizers.Adam(lr=lr, decay=lr / epochs)
         model.compile(
