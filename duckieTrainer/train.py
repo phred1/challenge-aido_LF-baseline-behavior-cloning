@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 #! Default Configuration
-EPOCHS = 100
+EPOCHS = 10000
 INIT_LR = 1e-3
 BATCH_SIZE = 64
 TRAIN_PERCENT = 0.8
@@ -107,7 +107,7 @@ class DuckieTrainer:
 
     def configure_model(self, lr, epochs):
         losses = {"Linear": "mse", "Angular": "mse"}
-        lossWeights = {"Linear": 1, "Angular": 10}
+        lossWeights = {"Linear": 2, "Angular": 10}
         model = FrankNet.build(200, 150)
         opt = tf.keras.optimizers.Adam(lr=lr, decay=lr / epochs)
         model.compile(

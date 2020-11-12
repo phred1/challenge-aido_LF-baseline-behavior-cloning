@@ -39,21 +39,21 @@ class HumanDriver:
             logger = logging.getLogger('gym-duckietown')
             logger.setLevel(logging.WARNING)
             #! Recorder Setup:
-            last_reward = 0
+            self.last_reward = 0
             #! Enter main event loop
             pyglet.clock.schedule_interval(
                 self.update, 1.0 / self.env.unwrapped.frame_rate, self.env)
             #! Get Joystick
             # Registers joysticks and recording controls
-            joysticks = pyglet.input.get_joysticks()
-            assert joysticks, 'No joystick device is connected'
-            joystick = joysticks[0]
-            joystick.open()
-            joystick.push_handlers(on_joybutton_press)
+            self.joysticks = pyglet.input.get_joysticks()
+            assert self.joysticks, 'No joystick device is connected'
+            self.joystick = self.joysticks[0]
+            self.joystick.open()
+            self.joystick.push_handlers(self.on_joybutton_press)
             pyglet.app.run()
             #! Log and exit
             datagen.close()
-            env.close()
+            self.env.close()
 
     def sleep_after_reset(self, seconds):
         for remaining in range(seconds, 0, -1):
@@ -65,41 +65,7 @@ class HumanDriver:
         return
 
     def playback(self):
-        #! Render Image
-        if args.playback & args.raw_log:
-            for entry in rawlog.recording:
-                step = entry['step']
-                meta = entry['metadata']
-                action = step[1]
-                x = action[0]
-                z = action[1]
-                canvas = step[0].copy()
-                reward = meta[1]
-                pwm_left, pwm_right = self.pwm_converter.convert(x, z)
-                print('Linear: ', x, ' Angular: ', z, 'Left PWM: ', round(
-                    pwm_left, 3), ' Right PWM: ', round(pwm_right, 3), ' Reward: ', round(reward, 2))
-                #! Speed bar indicator
-                cv2.rectangle(canvas, (20, 240), (50, int(240-220*x)),
-                              (76, 84, 255), cv2.FILLED)
-                cv2.rectangle(canvas, (320, 430), (int(320-150*z), 460),
-                              (76, 84, 255), cv2.FILLED)
-
-                cv2.imshow('Playback', canvas)
-                cv2.waitKey(20)
-
-        qa = input('1 to commit, 2 to abort:        ')
-        #! User interaction for log selection
-        while not(qa == '1' or qa == '2'):
-            qa = input('1 to commit, 2 to abort:        ')
-
-        if qa == '2':
-            print('Reset log. Discard current...')
-            datagen.recording.clear()
-
-        else:
-            datagen.on_episode_done()
-        #! Done
-        return
+        pass
 
     def image_resize(self,image, width=None, height=None, inter=cv2.INTER_AREA):
         # initialize the dimensions of the image to be resized and
@@ -132,7 +98,6 @@ class HumanDriver:
         # return the resized image
         return resized
 
-    @env.unwrapped.window.event
     def on_key_press(self,symbol, modifiers):
         """
         This handler processes keyboard commands that
@@ -141,17 +106,17 @@ class HumanDriver:
 
         if symbol == key.BACKSPACE or symbol == key.SLASH:
             print('RESET')
-            playback()
-            env.reset()
-            env.render()
-            sleep_after_reset(5)
+            self.playback()
+            self.env.reset()
+            self.env.render()
+            self.sleep_after_reset(5)
         elif symbol == key.PAGEUP:
-            env.unwrapped.cam_angle[0] = 0
-            env.render()
+            self.env.unwrapped.cam_angle[0] = 0
+            self.env.render()
         elif symbol == key.ESCAPE or symbol == key.Q:
-            env.close()
+            self.env.close()
             sys.exit(0)
-
+    
     def on_joybutton_press(self,joystick, button):
         """
         Event Handler for Controller Button Inputs
@@ -162,29 +127,26 @@ class HumanDriver:
         # Y Button
         if button == 3:
             print('RESET')
-            playback()
+            self.playback()
 
-            env.reset()
-            env.render()
-            sleep_after_reset(5)
+            self.env.reset()
+            self.env.render()
+            self.sleep_after_reset(5)
 
     def update(self,dt,env):
         """
         This function is called at every frame to handle
         movement/stepping and redrawing
         """
-        global actions, observation, last_reward
-
-        #print('Debug z and y:',joystick.y,'|||',joystick.z)
 
         #! Joystick no action do not record
-        if round(joystick.z, 2) == 0.0 and round(joystick.y, 2) == 0.0:
+        if round(self.joystick.z, 2) == 0.0 and round(self.joystick.y, 2) == 0.0:
             return
 
         #! Nominal Joystick Interpretation
-        x = round(joystick.y, 2) * 0.9  # To ensure maximum trun/velocity ratio
-        z = round(joystick.z, 2) * 3.0
-
+        x = round(self.joystick.y, 2) * 0.9  # To ensure maximum trun/velocity ratio
+        z = round(self.joystick.z, 2) * 3.0
+        print(x,z)
         # #! Joystick deadband
         # if (abs(round(joystick.y, 2)) < 0.01):
         #     z = 0.0
@@ -193,7 +155,7 @@ class HumanDriver:
         #     x = 0.0
 
         #! DRS enable for straight line
-        if joystick.buttons[6]:
+        if self.joystick.buttons[6]:
             x = -1.0
             z = 0.0
 
@@ -202,16 +164,16 @@ class HumanDriver:
 
         #! GO! and get next
         # * Observation is 640x480 pixels
-        obs, reward, done, info = env.step(action)
+        (obs, reward, done, info) = self.env.step(action)
 
         if reward != -1000:
             print('Current Command: ', action,
                   ' speed. Score: ', reward)
-            if ((reward > last_reward-0.02) or True):
+            if ((reward > self.last_reward-0.02) or True):
                 print('log')
 
                 #! resize to Nvidia standard:
-                obs_distorted_DS = image_resize(obs, width=200)
+                obs_distorted_DS = self.image_resize(obs, width=200)
 
                 #! ADD IMAGE-PREPROCESSING HERE!!!!!
                 height, width = obs_distorted_DS.shape[:2]
@@ -224,23 +186,23 @@ class HumanDriver:
                 cv2.imshow('Whats logged', cropped_final)
                 cv2.waitKey(1)
 
-                step = Step(output_img, reward, action, done)
-                self.logger.log(step, info)
-                last_reward = reward
+                step = Step(cropped_final, reward, action, done)
+                self.datagen.log(step, info)
+                self.last_reward = reward
             else:
                 print('Bad Training Data! Discarding...')
-                last_reward = reward
+                self.last_reward = reward
         else:
             print('!!!OUT OF BOUND!!!')
 
         if done:
-            playback()
-            env.reset()
-            env.render()
-            sleep_after_reset(5)
+            self.playback()
+            self.env.reset()
+            self.env.render()
+            self.sleep_after_reset(5)
             return
 
-        env.render()
+        self.env.render()
 
 
 if __name__ == '__main__':
@@ -262,7 +224,10 @@ if __name__ == '__main__':
                         help='enables recording high resolution raw log')
     parser.add_argument('--steps', default=1500,
                         help='number of steps to record in one batch')
-
+    parser.add_argument("--nb-episodes", default=1200,
+                        help='set the total episoded number', type=int)
+    parser.add_argument("--logfile", type=str, default=None)
+    parser.add_argument("--downscale", action="store_true")
     args = parser.parse_args()
 
     #! Start Env
