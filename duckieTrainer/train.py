@@ -195,4 +195,5 @@ if __name__ == "__main__":
         log_file=args.log_file,
         old_dataset=args.old_dataset,
         experimental=args.experimental,
+        split = args.split
     )

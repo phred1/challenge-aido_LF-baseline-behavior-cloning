@@ -30,7 +30,7 @@ class HumanDriver:
             log_file = f"dataset.log"
             self.env = env
             self.env.reset()
-            self.logger = Logger(self.env, log_file=log_file)
+            self.datagen = Logger(self.env, log_file=log_file)
             self.episode = 1
             self.max_episodes = max_episodes
             self.pwm_converter = SteeringToWheelVelWrapper()
@@ -39,14 +39,10 @@ class HumanDriver:
             logger = logging.getLogger('gym-duckietown')
             logger.setLevel(logging.WARNING)
             #! Recorder Setup:
-            # global variables for demo recording
-            actions = []
-            observation = []
-            datagen = Logger(env, log_file='training_data.log')
             last_reward = 0
             #! Enter main event loop
             pyglet.clock.schedule_interval(
-                update, 1.0 / env.unwrapped.frame_rate)
+                self.update, 1.0 / self.env.unwrapped.frame_rate, self.env)
             #! Get Joystick
             # Registers joysticks and recording controls
             joysticks = pyglet.input.get_joysticks()
@@ -105,7 +101,7 @@ class HumanDriver:
         #! Done
         return
 
-    def image_resize(image, width=None, height=None, inter=cv2.INTER_AREA):
+    def image_resize(self,image, width=None, height=None, inter=cv2.INTER_AREA):
         # initialize the dimensions of the image to be resized and
         # grab the image size
         dim = None
@@ -137,7 +133,7 @@ class HumanDriver:
         return resized
 
     @env.unwrapped.window.event
-    def on_key_press(symbol, modifiers):
+    def on_key_press(self,symbol, modifiers):
         """
         This handler processes keyboard commands that
         control the simulation
@@ -156,8 +152,7 @@ class HumanDriver:
             env.close()
             sys.exit(0)
 
-    @env.unwrapped.window.event
-    def on_joybutton_press(joystick, button):
+    def on_joybutton_press(self,joystick, button):
         """
         Event Handler for Controller Button Inputs
         Relevant Button Definitions:
@@ -173,7 +168,7 @@ class HumanDriver:
             env.render()
             sleep_after_reset(5)
 
-    def update(dt):
+    def update(self,dt,env):
         """
         This function is called at every frame to handle
         movement/stepping and redrawing
