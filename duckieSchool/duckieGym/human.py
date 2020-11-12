@@ -25,35 +25,31 @@ from pyglet.window import key
 from gym_duckietown.envs import DuckietownEnv
 
 class HumanDriver:
-    def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False):
+    def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False,playback=True):
         if not log_file:
             log_file = f"dataset.log"
-            self.env = env
-            self.env.reset()
-            self.datagen = Logger(self.env, log_file=log_file)
-            self.episode = 1
-            self.max_episodes = max_episodes
-            self.pwm_converter = SteeringToWheelVelWrapper()
-            #! Logger setup:
-            logging.basicConfig()
-            logger = logging.getLogger('gym-duckietown')
-            logger.setLevel(logging.WARNING)
-            #! Recorder Setup:
-            self.last_reward = 0
-            #! Enter main event loop
-            pyglet.clock.schedule_interval(
-                self.update, 1.0 / self.env.unwrapped.frame_rate, self.env)
-            #! Get Joystick
-            # Registers joysticks and recording controls
-            self.joysticks = pyglet.input.get_joysticks()
-            assert self.joysticks, 'No joystick device is connected'
-            self.joystick = self.joysticks[0]
-            self.joystick.open()
-            self.joystick.push_handlers(self.on_joybutton_press)
-            pyglet.app.run()
-            #! Log and exit
-            datagen.close()
-            self.env.close()
+        self.env = env
+        self.env.reset()
+        self.datagen = Logger(self.env, log_file=log_file)
+        self.episode = 1
+        self.max_episodes = max_episodes
+        self.pwm_converter = SteeringToWheelVelWrapper()
+        #! Temporary Variable Setup:
+        self.last_reward = 0
+        self.playback_buffer = []
+        #! Enter main event loop
+        pyglet.clock.schedule_interval(
+            self.update, 1.0 / self.env.unwrapped.frame_rate, self.env)
+        #! Get Joystick
+        self.joysticks = pyglet.input.get_joysticks()
+        assert self.joysticks, 'No joystick device is connected'
+        self.joystick = self.joysticks[0]
+        self.joystick.open()
+        self.joystick.push_handlers(self.on_joybutton_press)
+        pyglet.app.run()
+        #! Log and exit
+        self.datagen.close()
+        self.env.close()
 
     def sleep_after_reset(self, seconds):
         for remaining in range(seconds, 0, -1):
@@ -65,37 +61,51 @@ class HumanDriver:
         return
 
     def playback(self):
-        pass
+        #! Render Image
+        if args.playback:
+            for entry in self.playback_buffer:
+                (canvas,action,reward)=entry
+                x = action[0]
+                z = action[1]
+                pwm_left, pwm_right = self.pwm_converter.convert(x, z)
+                print('Linear: ', x, ' Angular: ', z, 'Left PWM: ', round(
+                    pwm_left, 3), ' Right PWM: ', round(pwm_right, 3), ' Reward: ', round(reward, 2))
+                #! Speed bar indicator
+                cv2.rectangle(canvas, (20, 240), (50, int(240-220*x)),
+                            (76, 84, 255), cv2.FILLED)
+                cv2.rectangle(canvas, (320, 430), (int(320-150*z), 460),
+                            (76, 84, 255), cv2.FILLED)
+
+                cv2.imshow('Playback', canvas)
+                cv2.waitKey(20)
+        #! User interaction for log commitment
+        qa = input('1 to commit, 2 to abort:        ')
+        while not(qa == '1' or qa == '2'):
+            qa = input('1 to commit, 2 to abort:        ')
+        if qa == '2':
+            self.datagen.reset_episode()
+            print('Reset log. Discard current...')
+        else:
+            print("Comitting Episode")
+            self.datagen.on_episode_done()
+        return        
 
     def image_resize(self,image, width=None, height=None, inter=cv2.INTER_AREA):
-        # initialize the dimensions of the image to be resized and
-        # grab the image size
+        """
+        Resize an image with a given width or a given height 
+        and preserve the aspect ratio.
+        """
         dim = None
         (h, w) = image.shape[:2]
-
-        # if both the width and height are None, then return the
-        # original image
         if width is None and height is None:
             return image
-
-        # check to see if the width is None
         if width is None:
-            # calculate the ratio of the height and construct the
-            # dimensions
             r = height / float(h)
             dim = (int(w * r), height)
-
-        # otherwise, the height is None
         else:
-            # calculate the ratio of the width and construct the
-            # dimensions
             r = width / float(w)
             dim = (width, int(h * r))
-
-        # resize the image
         resized = cv2.resize(image, dim, interpolation=inter)
-
-        # return the resized image
         return resized
 
     def on_key_press(self,symbol, modifiers):
@@ -103,7 +113,6 @@ class HumanDriver:
         This handler processes keyboard commands that
         control the simulation
         """
-
         if symbol == key.BACKSPACE or symbol == key.SLASH:
             print('RESET')
             self.playback()
@@ -128,7 +137,6 @@ class HumanDriver:
         if button == 3:
             print('RESET')
             self.playback()
-
             self.env.reset()
             self.env.render()
             self.sleep_after_reset(5)
@@ -146,8 +154,8 @@ class HumanDriver:
         #! Nominal Joystick Interpretation
         x = round(self.joystick.y, 2) * 0.9  # To ensure maximum trun/velocity ratio
         z = round(self.joystick.z, 2) * 3.0
-        print(x,z)
-        # #! Joystick deadband
+        
+        #! Joystick deadband
         # if (abs(round(joystick.y, 2)) < 0.01):
         #     z = 0.0
 
@@ -175,17 +183,13 @@ class HumanDriver:
                 #! resize to Nvidia standard:
                 obs_distorted_DS = self.image_resize(obs, width=200)
 
-                #! ADD IMAGE-PREPROCESSING HERE!!!!!
+                #! Image pre-processing
                 height, width = obs_distorted_DS.shape[:2]
-                #print('Distorted return image Height: ', height,' Width: ',width)
                 cropped = obs_distorted_DS[0:150, 0:200]
 
                 # NOTICE: OpenCV changes the order of the channels !!!
                 cropped_final = cv2.cvtColor(cropped, cv2.COLOR_BGR2YUV)
-
-                cv2.imshow('Whats logged', cropped_final)
-                cv2.waitKey(1)
-
+                self.playback_buffer.append((cropped_final,action,reward))
                 step = Step(cropped_final, reward, action, done)
                 self.datagen.log(step, info)
                 self.last_reward = reward
@@ -219,9 +223,6 @@ if __name__ == '__main__':
     parser.add_argument('--playback', default=True,
                         help='enable playback after each session')
     parser.add_argument('--distortion', default=True)
-
-    parser.add_argument('--raw-log', default=True,
-                        help='enables recording high resolution raw log')
     parser.add_argument('--steps', default=1500,
                         help='number of steps to record in one batch')
     parser.add_argument("--nb-episodes", default=1200,
@@ -245,4 +246,4 @@ if __name__ == '__main__':
     else:
         env = gym.make(args.env_name)
 
-    node = HumanDriver(env,max_episodes=args.nb_episodes, max_steps=args.steps, log_file=args.logfile, downscale = args.downscale)
+    node = HumanDriver(env,max_episodes=args.nb_episodes, max_steps=args.steps, log_file=args.logfile, downscale = args.downscale,playback=args.playback)

@@ -12,7 +12,7 @@ EPISODE_LABEL = "Episode: {}/{}"
 FRAME_LABEL = "Frame: {}/{}"
 FPS_LABEL = "Speed: {} fps"
 
-FILE_NAME = "slimtest.log"
+FILE_NAME = "dataset.log"
 # FILE_NAME = "train-002.log"
 # FILE_NAME = "log2.log"
 
@@ -198,7 +198,7 @@ class LogViewer:
             # sample = self.data[self.frame]['step'][0]
             sample = self.episode_data.steps[self.frame_index].obs
         except IndexError:
-            print("outofbound")
+            print("Episode end...")
             # self.next_episode()
             self.frame_index = 0
             self.root.after(int(1000), lambda: self.update_image())

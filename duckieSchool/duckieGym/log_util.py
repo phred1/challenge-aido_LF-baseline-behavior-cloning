@@ -26,6 +26,9 @@ class Logger:
             self.episode.metadata = info
         self.episode.steps.append(step)
 
+    def reset_episode(self):
+        self.episode = Episode(version=SCHEMA_VERSION)
+
     def on_episode_done(self):
         print(f"episode {self.episode_count} done, writing to file")
         # The next file cause all episodes to be written to the same pickle FP. (Overwrite first?)
