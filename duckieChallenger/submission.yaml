@@ -1,12 +1,6 @@
-# TODO: Fix Document address.
-
-# challenge name(s); defaults to all compatible challenges
-# challenge: [c1,c2]
-
-# conventions + format
 protocol: aido2_db18_agent-z2
 challenge: [aido5-LF-sim-validation]
-#challenge: [aido3-off-LFVI-real-validation] # This will submit to all available challenges.
+#challenge: [] # This will submit to all available challenges.
 user-label: "challenge-aido_LF-baseline-behavior-cloning"
 description: |
     This is a template for an agent that uses Tensorflow for inference.
