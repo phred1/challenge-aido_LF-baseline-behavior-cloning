@@ -67,7 +67,7 @@ class HumanDriver:
                 (recorded,action,reward)=entry
                 x = action[0]
                 z = action[1]
-                canvas = cv2.cvtColor(recorded, cv2.COLOR_YUV2RGB)
+                canvas = cv2.cvtColor(recorded, cv2.COLOR_BGR2RGB)
                 pwm_left, pwm_right = self.pwm_converter.convert(x, z)
                 print('Linear: ', x, ' Angular: ', z, 'Left PWM: ', round(
                     pwm_left, 3), ' Right PWM: ', round(pwm_right, 3), ' Reward: ', round(reward, 2))
@@ -191,7 +191,7 @@ class HumanDriver:
 
                 # NOTICE: OpenCV changes the order of the channels !!!
                 cropped_final = cv2.cvtColor(cropped, cv2.COLOR_BGR2YUV)
-                self.playback_buffer.append((cropped_final,action,reward))
+                self.playback_buffer.append((obs,action,reward))
                 step = Step(cropped_final, reward, action, done)
                 self.datagen.log(step, info)
                 self.last_reward = reward
