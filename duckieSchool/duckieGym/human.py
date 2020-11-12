@@ -215,7 +215,7 @@ if __name__ == '__main__':
     #! Parser sector:
     parser = argparse.ArgumentParser()
     parser.add_argument('--env-name', default=None)
-    parser.add_argument('--map-name', default='small_loop_cw')
+    parser.add_argument('--map-name', default='zigzag_dists')
     parser.add_argument('--draw-curve', default=False,
                         help='draw the lane following curve')
     parser.add_argument('--draw-bbox', default=False,
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     #! Start Env
     if args.env_name is None:
         env = DuckietownEnv(
-            map_name="loop_pedestrians",
+            map_name=args.map_name,
             max_steps=args.steps,
             draw_curve=args.draw_curve,
             draw_bbox=args.draw_bbox,
