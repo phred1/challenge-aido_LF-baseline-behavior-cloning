@@ -22,6 +22,9 @@ class TensorflowTemplateAgent:
         self.current_image = np.zeros(expect_shape)
         self.input_image = np.zeros((150, 200, 3))
         self.to_predictor = np.expand_dims(self.input_image, axis=0)
+        # Set CPU as available physical device
+        my_devices = tf.config.experimental.list_physical_devices(device_type='CPU')
+        tf.config.experimental.set_visible_devices(devices= my_devices, device_type='CPU')
 
     def init(self, context: Context):
         context.info('init()')

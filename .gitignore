@@ -12,4 +12,5 @@ output/
 .resolved
 trainlogs/
 trainlogs
-.resolved
+*.resolved
+requirements.resolved

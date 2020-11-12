@@ -32,7 +32,7 @@ pwm_converter = SteeringToWheelVelWrapper()
 class DataGenerator:
     def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False):
         if not log_file:
-            log_file = f"/miniscratch/courchea/ds_{max_steps}_{max_episodes}.log"
+            log_file = f"dataset.log"
         self.env = env
         self.env.reset()
         self.logger = Logger(self.env, log_file=log_file)
@@ -43,8 +43,6 @@ class DataGenerator:
         #! Enter main event loop
         print("Starting data generation")
 
-        # TODO move that to
-        # threading.Timer(1.0 / self.env.unwrapped.frame_rate, lambda: self.update(env)).start()
         pyglet.clock.schedule_interval(
             self.update, 1.0 / self.env.unwrapped.frame_rate, self.env
         )
@@ -180,7 +178,7 @@ if __name__ == "__main__":
     #! Parser sector:
     parser = argparse.ArgumentParser()
     parser.add_argument("--env-name", default=None)
-    parser.add_argument("--map-name", default="small_loop_cw")
+    parser.add_argument("--map-name", default="zigzag_dists")
     parser.add_argument(
         "--draw-curve", default=False, help="draw the lane following curve"
     )
