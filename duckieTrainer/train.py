@@ -188,12 +188,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     DuckieTrainer(
-        epochs=args.epochs,
-        init_lr=args.learning_rate,
-        batch_size=args.batch_size,
+        epochs=int(args.epochs),
+        init_lr=float(args.learning_rate),
+        batch_size=int(args.batch_size),
         log_dir=args.log_dir,
         log_file=args.log_file,
         old_dataset=args.old_dataset,
         experimental=args.experimental,
-        split = args.split
+        split = float(args.split)
     )
