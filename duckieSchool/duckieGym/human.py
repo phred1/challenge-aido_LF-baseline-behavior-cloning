@@ -228,7 +228,7 @@ if __name__ == '__main__':
     parser.add_argument('--distortion', default=True)
     parser.add_argument('--steps', default=1500,
                         help='number of steps to record in one batch')
-    parser.add_argument("--nb-episodes", default=1200,
+    parser.add_argument("--nb-episodes", default=100,
                         help='set the total episoded number', type=int)
     parser.add_argument("--logfile", type=str, default=None)
     parser.add_argument("--downscale", action="store_true")

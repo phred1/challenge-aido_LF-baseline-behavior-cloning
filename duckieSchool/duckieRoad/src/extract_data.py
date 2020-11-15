@@ -12,7 +12,7 @@ from log_util import Logger
 from log_schema import Episode, Step
 import cv2
 
-VEHICLE_NAME = 'setlist'
+VEHICLE_NAME = 'avlduck2'
 
 # A collection of ros messages coming from a single topic.
 MessageCollection = collections.namedtuple(
@@ -197,3 +197,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("All complete. You can find your log in converted folder.")
