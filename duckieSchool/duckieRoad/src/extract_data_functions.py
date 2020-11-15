@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import pandas as pd
@@ -52,7 +52,7 @@ def image_preprocessing(image):
 def synchronize_data(df_imgs, df_cmds, bag_ID):
     # initialize a dataframe to append all new values
     synch_data = pd.DataFrame()
-
+    synch_imgs = pd.DataFrame()
     first_time = True
 
     # for each omega velocity, find the respective image

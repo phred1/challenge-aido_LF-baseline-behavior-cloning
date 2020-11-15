@@ -18,7 +18,7 @@ VEHICLE_NAME = 'avlduck2'
 MessageCollection = collections.namedtuple(
     "MessageCollection", ["topic", "type", "messages"])
 
-frank_logger = Logger(log_file='training_data.log')
+frank_logger = Logger(log_file='converted/training_data.log')
 
 
 def extract_messages(path, requested_topics):
