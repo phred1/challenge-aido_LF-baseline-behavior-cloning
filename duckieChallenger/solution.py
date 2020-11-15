@@ -32,7 +32,7 @@ class TensorflowTemplateAgent:
             if not name:  # None or ''
                 msg = 'Could not find gpu device.'
                 logger.error(msg)
-                #raise Exception(msg)
+                raise Exception(msg)
 
     def init(self, context: Context):
         context.info('init()')
