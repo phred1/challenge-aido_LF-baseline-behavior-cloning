@@ -19,4 +19,4 @@ RUN  pip3 install --use-feature=2020-resolver -r requirements.txt
 COPY src/ /workspace/src
 
 # Extract data into useable format
-CMD python3 src/extract_data.py
+#CMD python3 src/extract_data.py

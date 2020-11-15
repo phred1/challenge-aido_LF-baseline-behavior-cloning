@@ -9,7 +9,10 @@ import cv_bridge
 from copy import copy
 from extract_data_functions import image_preprocessing, synchronize_data
 from log_util import Logger
+from log_schema import Episode, Step
 import cv2
+
+VEHICLE_NAME = 'setlist'
 
 # A collection of ros messages coming from a single topic.
 MessageCollection = collections.namedtuple(
@@ -56,7 +59,6 @@ def main():
         # the duckiebot name can change from one bag file to the other, so define
         # the topics WITHOUT the duckiebot name in the beginning
         "/camera_node/image/compressed",
-        # "/lane_controller_node/car_cmd"
         "/joy"
     ]
 
@@ -85,7 +87,7 @@ def main():
 
         # extract the duckiebot name to complete the definition of the nodes
         #duckiebot_name = file.partition("_")[2].partition(".bag")[0]
-        duckiebot_name = "avlduck3"
+        duckiebot_name = VEHICLE_NAME
         # complete the topics names with the duckiebot name in the beginning
         ros_topics_temp = copy(ros_topics)
         for num, topic in enumerate(ros_topics_temp):
@@ -112,7 +114,6 @@ def main():
         # extract the images and car_cmds messages
         ext_images = msgs["/" + duckiebot_name +
                           "/camera_node/image/compressed"].messages
-        # ext_car_cmds = msgs["/" + duckiebot_name + "/lane_controller_node/car_cmd"].messages
         ext_car_cmds = msgs["/" + duckiebot_name + "/joy"].messages
 
         # create dataframe with the images and the images' timestamps
@@ -186,9 +187,10 @@ def main():
             tobelogged_action = np.array([action[2], action[3]])
             print(tobelogged_action)
             tobelogged_image = synch_imgs[i*150:(i+1)*150, :, :]
-            new_img = cv2.cvtColor(tobelogged_image, cv2.COLOR_BGR2YUV)
-            frank_logger.log(tobelogged_image, tobelogged_action)
-            frank_logger.commit()
+            tobelogged_image = cv2.cvtColor(tobelogged_image, cv2.COLOR_BGR2YUV)
+            done = False if (i <= synch_data.shape[0]) else True
+            step = Step(tobelogged_image,None,tobelogged_action, done)
+            frank_logger.log(step, None)
     print("Synchronization of all data is finished.\n")
     frank_logger.close()
 

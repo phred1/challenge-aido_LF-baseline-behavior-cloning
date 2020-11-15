@@ -4,6 +4,6 @@ make_extract_container:
 
 start_extract_data:
 	docker run -it --rm \
-	-v bag_files:/workspace/bag_files \
-	-v converted:/workspace/converted \
+	-v `pwd`/bag_files:/workspace/bag_files/ \
+	-v `pwd`/converted:/workspace/converted/ \
 	extract_container ; \
