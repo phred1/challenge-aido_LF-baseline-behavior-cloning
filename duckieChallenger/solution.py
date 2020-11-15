@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
+import os
 import cv2
 import numpy as np
 import tensorflow as tf
 
-from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart, JPGImage,
-                          LEDSCommands, protocol_agent_DB20, PWMCommands, RGB, wrap_direct)
-
+from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart, JPGImage, LEDSCommands,
+                          logger, protocol_agent_DB20, PWMCommands, RGB, wrap_direct)
 from frankModel import FrankNet
 from helperFncs import SteeringToWheelVelWrapper, image_resize
 
@@ -16,11 +16,23 @@ convertion_wrapper = SteeringToWheelVelWrapper()
 class TensorflowTemplateAgent:
 
     def __init__(self):
+        self.check_tensorflow_gpu()
         self.model = FrankNet.build(200, 150)
         self.model.load_weights("FrankNet.h5")
         self.current_image = np.zeros(expect_shape)
         self.input_image = np.zeros((150, 200, 3))
         self.to_predictor = np.expand_dims(self.input_image, axis=0)        
+
+    def check_tensorflow_gpu():
+        req = os.environ.get('AIDO_REQUIRE_GPU', None)
+        name = tf.test.gpu_device_name()
+        logger.info(f'gpu_device_name: {name!r} AIDO_REQUIRE_GPU = {req!r}')
+
+        if req is not None:
+            if not name:  # None or ''
+                msg = 'Could not find gpu device.'
+                logger.error(msg)
+                #raise Exception(msg)
 
     def init(self, context: Context):
         context.info('init()')
