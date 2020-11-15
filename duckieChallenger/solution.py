@@ -23,7 +23,7 @@ class TensorflowTemplateAgent:
         self.input_image = np.zeros((150, 200, 3))
         self.to_predictor = np.expand_dims(self.input_image, axis=0)        
 
-    def check_tensorflow_gpu():
+    def check_tensorflow_gpu(self):
         req = os.environ.get('AIDO_REQUIRE_GPU', None)
         name = tf.test.gpu_device_name()
         logger.info(f'gpu_device_name: {name!r} AIDO_REQUIRE_GPU = {req!r}')
