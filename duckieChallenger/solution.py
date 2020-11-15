@@ -16,7 +16,6 @@ convertion_wrapper = SteeringToWheelVelWrapper()
 class TensorflowTemplateAgent:
 
     def __init__(self):
-        self.check_tensorflow_gpu()
         self.model = FrankNet.build(200, 150)
         self.model.load_weights("FrankNet.h5")
         self.current_image = np.zeros(expect_shape)
