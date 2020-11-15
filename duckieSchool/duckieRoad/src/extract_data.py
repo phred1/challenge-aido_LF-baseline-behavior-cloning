@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import pandas as pd
@@ -8,13 +8,15 @@ import rosbag
 import cv_bridge
 from copy import copy
 from extract_data_functions import image_preprocessing, synchronize_data
-from _loggers import Logger
+from log_util import Logger
 import cv2
 
 # A collection of ros messages coming from a single topic.
-MessageCollection = collections.namedtuple("MessageCollection", ["topic", "type", "messages"])
+MessageCollection = collections.namedtuple(
+    "MessageCollection", ["topic", "type", "messages"])
 
 frank_logger = Logger(log_file='training_data.log')
+
 
 def extract_messages(path, requested_topics):
 
@@ -26,14 +28,16 @@ def extract_messages(path, requested_topics):
 
     _, available_topics = bag.get_type_and_topic_info()
 
-    #print(available_topics) 
+    # print(available_topics)
 
     # check if the requested topics exist in bag's topics and if yes extract the messages only for them
     extracted_messages = {}
     for topic in requested_topics:
         if topic not in available_topics:
-            raise ValueError("Could not find the requested topic (%s) in the bag %s" % (topic, path))
-        extracted_messages[topic] = MessageCollection(topic=topic, type=available_topics[topic].msg_type, messages=[])
+            raise ValueError(
+                "Could not find the requested topic (%s) in the bag %s" % (topic, path))
+        extracted_messages[topic] = MessageCollection(
+            topic=topic, type=available_topics[topic].msg_type, messages=[])
 
     for msg in bag.read_messages():
         topic = msg.topic
@@ -44,22 +48,23 @@ def extract_messages(path, requested_topics):
 
     return extracted_messages
 
+
 def main():
 
     # define the list of topics that you want to extract
     ros_topics = [
-                # the duckiebot name can change from one bag file to the other, so define
-                # the topics WITHOUT the duckiebot name in the beginning
-                "/camera_node/image/compressed",
-                # "/lane_controller_node/car_cmd"
-                "/joy"
-                ]
+        # the duckiebot name can change from one bag file to the other, so define
+        # the topics WITHOUT the duckiebot name in the beginning
+        "/camera_node/image/compressed",
+        # "/lane_controller_node/car_cmd"
+        "/joy"
+    ]
 
     # define the bags_directory in order to extract the data
-    bags_directory = os.path.join(os.getcwd(), "data", "bag_files")
+    bags_directory = os.path.join(os.getcwd(), "bag_files")
 
     # define data_directory
-    data_directory = 'data'
+    data_directory = 'converted'
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
 
@@ -96,7 +101,7 @@ def main():
             print("Failed to open {}".format(abs_path))
             continue
 
-                         ######## This following part is implementation specific ########
+        ######## This following part is implementation specific ########
 
         # The composition of the ros messages is different (e.g. different names in the messages) and also different
         # tools are used to handle the different extracted data (e.g. cvbridge for images). As a result, the following
@@ -105,7 +110,8 @@ def main():
         # easy way to find the structure of your ros messages : print dir(msgs[name_of_topic])
 
         # extract the images and car_cmds messages
-        ext_images = msgs["/" + duckiebot_name + "/camera_node/image/compressed"].messages
+        ext_images = msgs["/" + duckiebot_name +
+                          "/camera_node/image/compressed"].messages
         # ext_car_cmds = msgs["/" + duckiebot_name + "/lane_controller_node/car_cmd"].messages
         ext_car_cmds = msgs["/" + duckiebot_name + "/joy"].messages
 
@@ -118,11 +124,12 @@ def main():
             # img = cv2.imdecode(np_arr, cv2.CV_LOAD_IMAGE_COLOR)
             # print("img", img, img.shape)
             img = cvbridge_object.compressed_imgmsg_to_cv2(img.message)
-            img = image_preprocessing(img)  
+            img = image_preprocessing(img)
 
             # hack to get the timestamp of each image in <float 'secs.nsecs'> format instead of <int 'rospy.rostime.Time'>
             temp_timestamp = ext_images[num].timestamp
-            img_timestamp = temp_timestamp.secs + temp_timestamp.nsecs *10 ** -len(str(temp_timestamp.nsecs))
+            img_timestamp = temp_timestamp.secs + temp_timestamp.nsecs * \
+                10 ** -len(str(temp_timestamp.nsecs))
 
             temp_df = pd.DataFrame({
                 'img': [img],
@@ -142,7 +149,8 @@ def main():
 
             # hack to get the timestamp of each image in <float 'secs.nsecs'> format instead of <int 'rospy.rostime.Time'>
             temp_timestamp = ext_car_cmds[num].timestamp
-            vel_timestamp = temp_timestamp.secs + temp_timestamp.nsecs * 10 ** -len(str(temp_timestamp.nsecs))
+            vel_timestamp = temp_timestamp.secs + temp_timestamp.nsecs * \
+                10 ** -len(str(temp_timestamp.nsecs))
 
             temp_df = pd.DataFrame({
                 'vel_timestamp': [vel_timestamp],
@@ -158,7 +166,8 @@ def main():
         # synchronize data
         print("Starting synchronization of data for {} file.".format(file))
 
-        temp_synch_data, temp_synch_imgs = synchronize_data(df_imgs, df_cmds, bag_ID)
+        temp_synch_data, temp_synch_imgs = synchronize_data(
+            df_imgs, df_cmds, bag_ID)
 
         if first_time:
             synch_data = copy(temp_synch_data)
@@ -169,20 +178,19 @@ def main():
             synch_data = np.vstack((synch_data, temp_synch_data))
             synch_imgs = np.vstack((synch_imgs, temp_synch_imgs))
 
-        print("\nShape of total data: {} , shape of total images: {}\n".format(synch_data.shape, synch_imgs.shape))
-               
+        print("\nShape of total data: {} , shape of total images: {}\n".format(
+            synch_data.shape, synch_imgs.shape))
+
         for i in range(synch_data.shape[0]):
             action = synch_data[i]
-            tobelogged_action = np.array([action[2],action[3]])
+            tobelogged_action = np.array([action[2], action[3]])
             print(tobelogged_action)
-            tobelogged_image = synch_imgs[i*150:(i+1)*150,:,:]
+            tobelogged_image = synch_imgs[i*150:(i+1)*150, :, :]
             new_img = cv2.cvtColor(tobelogged_image, cv2.COLOR_BGR2YUV)
-            frank_logger.log(tobelogged_image,tobelogged_action)
+            frank_logger.log(tobelogged_image, tobelogged_action)
             frank_logger.commit()
     print("Synchronization of all data is finished.\n")
     frank_logger.close()
-    while(1):
-        print("Get Log!!!")
 
 
 if __name__ == "__main__":

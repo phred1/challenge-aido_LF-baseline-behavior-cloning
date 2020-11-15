@@ -1,7 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
-import os
 import pickle
-import numpy as np
 from log_schema import Episode, Step, SCHEMA_VERSION
 
 class Reader:
@@ -32,8 +29,6 @@ class Reader:
     def modern_read(self):
         episode_data = None
         episode_index = 0
-        episodes_size = 0
-        observations_size = 0
         end = False
         Observation=[]
         Linear=[]
