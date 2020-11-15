@@ -25,7 +25,7 @@ from pyglet.window import key
 from gym_duckietown.envs import DuckietownEnv
 
 class HumanDriver:
-    def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False,playback=True):
+    def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False,playback=True,filter_bad_data=False):
         if not log_file:
             log_file = f"dataset.log"
         self.env = env
@@ -33,6 +33,7 @@ class HumanDriver:
         self.datagen = Logger(self.env, log_file=log_file)
         self.episode = 1
         self.max_episodes = max_episodes
+        self.filter_bad_data = filter_bad_data
         self.pwm_converter = SteeringToWheelVelWrapper()
         #! Temporary Variable Setup:
         self.last_reward = 0
@@ -179,7 +180,7 @@ class HumanDriver:
         if reward != -1000:
             print('Current Command: ', action,
                   ' speed. Score: ', reward)
-            if ((reward > self.last_reward-0.02) or True):
+            if ((reward > self.last_reward-0.02) or not self.filter_bad_data):
                 print('log')
 
                 #! resize to Nvidia standard:
@@ -231,6 +232,7 @@ if __name__ == '__main__':
                         help='set the total episoded number', type=int)
     parser.add_argument("--logfile", type=str, default=None)
     parser.add_argument("--downscale", action="store_true")
+    parser.add_argument("--filter-bad-data",action="store_true",help="discard data when reward is decreasing")
     args = parser.parse_args()
 
     #! Start Env
@@ -248,4 +250,10 @@ if __name__ == '__main__':
     else:
         env = gym.make(args.env_name)
 
-    node = HumanDriver(env,max_episodes=args.nb_episodes, max_steps=args.steps, log_file=args.logfile, downscale = args.downscale,playback=args.playback)
+    node = HumanDriver(env,
+                        max_episodes=args.nb_episodes, 
+                        max_steps=args.steps, 
+                        log_file=args.logfile, 
+                        downscale = args.downscale,
+                        playback=args.playback,
+                        filter_bad_data=args.filter_bad_data)

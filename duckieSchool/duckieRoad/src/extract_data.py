@@ -188,7 +188,7 @@ def main():
             print(tobelogged_action)
             tobelogged_image = synch_imgs[i*150:(i+1)*150, :, :]
             tobelogged_image = cv2.cvtColor(tobelogged_image, cv2.COLOR_BGR2YUV)
-            done = False if (i <= synch_data.shape[0]) else True
+            done = False if (i < synch_data.shape[0]) else True
             step = Step(tobelogged_image,None,tobelogged_action, done)
             frank_logger.log(step, None)
     print("Synchronization of all data is finished.\n")
