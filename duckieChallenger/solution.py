@@ -9,6 +9,19 @@ from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart,
 from frankModel import FrankNet
 from helperFncs import SteeringToWheelVelWrapper, image_resize
 
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+# Restrict TensorFlow to only allocate 1GB of memory on the first GPU
+    try:
+        tf.config.experimental.set_virtual_device_configuration(
+            gpus[0],
+            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    except RuntimeError as e:
+        # Virtual devices must be set before GPUs have been initialized
+        print(e)
+
 #! Global Config
 expect_shape = (480, 640, 3)
 convertion_wrapper = SteeringToWheelVelWrapper()
@@ -93,22 +106,8 @@ def check_tensorflow_gpu():
             logger.error(msg)
             raise Exception(msg)
 
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    if gpus:
-    # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
-        try:
-            tf.config.experimental.set_virtual_device_configuration(
-                gpus[0],
-                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
-            logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-        except RuntimeError as e:
-            # Virtual devices must be set before GPUs have been initialized
-            print(e)
-
 
 def main():
-    check_tensorflow_gpu()
     node = TensorflowTemplateAgent()
     protocol = protocol_agent_DB20
     wrap_direct(node=node, protocol=protocol)
