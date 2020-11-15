@@ -33,6 +33,12 @@ class TensorflowTemplateAgent:
                 msg = 'Could not find gpu device.'
                 logger.error(msg)
                 raise Exception(msg)
+            
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        try:
+            tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+        except RuntimeError as e:
+            print(e)
 
     def init(self, context: Context):
         context.info('init()')
