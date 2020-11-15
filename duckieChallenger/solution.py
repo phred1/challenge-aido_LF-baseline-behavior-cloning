@@ -9,36 +9,47 @@ from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart,
 from frankModel import FrankNet
 from helperFncs import SteeringToWheelVelWrapper, image_resize
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-# Restrict TensorFlow to only allocate 1GB of memory on the first GPU
-    try:
-        tf.config.experimental.set_virtual_device_configuration(
-            gpus[0],
-            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
-        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-    except RuntimeError as e:
-        # Virtual devices must be set before GPUs have been initialized
-        print(e)
-
 #! Global Config
 expect_shape = (480, 640, 3)
 convertion_wrapper = SteeringToWheelVelWrapper()
 
+
 class TensorflowTemplateAgent:
 
     def __init__(self):
+        pass
+
+    def init(self, context: Context):
+        context.info("Check GPU...")
+        self.check_tensorflow_gpu()
+        context.info('init()')
         self.model = FrankNet.build(200, 150)
         self.model.load_weights("FrankNet.h5")
         self.current_image = np.zeros(expect_shape)
         self.input_image = np.zeros((150, 200, 3))
-        self.to_predictor = np.expand_dims(self.input_image, axis=0)        
+        self.to_predictor = np.expand_dims(self.input_image, axis=0)
 
-
-
-    def init(self, context: Context):
-        context.info('init()')
+    def check_tensorflow_gpu(self):
+        req = os.environ.get('AIDO_REQUIRE_GPU', None)
+        name = tf.test.gpu_device_name()
+        logger.info(f'gpu_device_name: {name!r} AIDO_REQUIRE_GPU = {req!r}')
+        if req is not None:
+            if not name:  # None or ''
+                msg = 'Could not find gpu device.'
+                logger.error(msg)
+                raise Exception(msg)
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        if gpus:
+            # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
+            try:
+                tf.config.experimental.set_virtual_device_configuration(
+                    gpus[0],
+                    [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+                logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+                print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+            except RuntimeError as e:
+                # Virtual devices must be set before GPUs have been initialized
+                print(e)
 
     def on_received_seed(self, data: int):
         np.random.seed(data)
@@ -54,7 +65,6 @@ class TensorflowTemplateAgent:
         self.input_image = self.input_image[0:150, 0:200]
         self.input_image = cv2.cvtColor(self.input_image, cv2.COLOR_RGB2YUV)
         self.to_predictor = np.expand_dims(self.input_image, axis=0)
-
 
     #! Modification here! Return with action
     def compute_action(self, observation):
@@ -95,16 +105,8 @@ def jpg2rgb(image_data: bytes) -> np.ndarray:
     assert data.dtype == np.uint8
     return data
 
-def check_tensorflow_gpu():
-    req = os.environ.get('AIDO_REQUIRE_GPU', None)
-    name = tf.test.gpu_device_name()
-    logger.info(f'gpu_device_name: {name!r} AIDO_REQUIRE_GPU = {req!r}')
 
-    if req is not None:
-        if not name:  # None or ''
-            msg = 'Could not find gpu device.'
-            logger.error(msg)
-            raise Exception(msg)
+
 
 
 def main():
