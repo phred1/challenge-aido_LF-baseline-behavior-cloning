@@ -7,14 +7,12 @@ import sys
 from typing import Dict, List
 from PIL import Image, ImageTk
 from log_schema import Episode, Step
+import argparse
+
 
 EPISODE_LABEL = "Episode: {}/{}"
 FRAME_LABEL = "Frame: {}/{}"
 FPS_LABEL = "Speed: {} fps"
-
-FILE_NAME = "dataset.log"
-# FILE_NAME = "train-002.log"
-# FILE_NAME = "log2.log"
 
 COUNT_EPISODES = True
 
@@ -300,4 +298,8 @@ class LogViewer:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--log_name', default="dataset.log")
+    args = parser.parse_args()
+    FILE_NAME = args.log_name
     LogViewer()

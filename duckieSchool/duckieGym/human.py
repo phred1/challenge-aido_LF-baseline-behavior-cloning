@@ -7,15 +7,12 @@ and obtain log for further training.
 """
 
 import argparse
-import json
 import sys
 import cv2
 import time
 import gym
 import numpy as np
 import pyglet
-import math
-import logging
 
 from log_util import Logger, SteeringToWheelVelWrapper
 from log_schema import Episode, Step
