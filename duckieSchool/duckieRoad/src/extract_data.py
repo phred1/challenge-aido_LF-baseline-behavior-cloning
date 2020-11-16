@@ -18,7 +18,7 @@ VEHICLE_NAME = 'avlduck2'
 MessageCollection = collections.namedtuple(
     "MessageCollection", ["topic", "type", "messages"])
 
-frank_logger = Logger(log_file='converted/training_data.log')
+frank_logger = Logger(log_file='converted/dataset.log')
 
 
 def extract_messages(path, requested_topics):
@@ -189,6 +189,7 @@ def main():
             done = False if (i < synch_data.shape[0]) else True
             step = Step(tobelogged_image, None, tobelogged_action, done)
             frank_logger.log(step, None)
+        frank_logger.on_episode_done()
     print("Synchronization of all data is finished.\n")
     frank_logger.close()
 
