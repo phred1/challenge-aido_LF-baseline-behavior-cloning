@@ -1,13 +1,14 @@
 import pickle
 import argparse
 from log_schema import Episode, Step
-
+SCHEMA_VERSION = "1.0.0"    
 class Combiner:
     def __init__(self,log1,log2,output):
         self._log1 = open(log1,'rb')
         self._log2 = open(log2,'rb')
         self._output = open(output,'wb')
         self.episode_counter = 0
+        self.combine()
 
     def combine(self):
         episode_data = None
@@ -19,9 +20,11 @@ class Combiner:
             except EOFError:
                 print("Captured total {} episodes".format(episode_index))
                 print("End of log file!")
-            self.commit_episode(self,episode_data)
+                break
+            self.commit_episode(episode_data)
             self.episode=Episode(version=SCHEMA_VERSION)
             self.episode_counter+=1
+
         while True:
             try:
                 episode_data = pickle.load(self._log2)
@@ -29,7 +32,8 @@ class Combiner:
             except EOFError:
                 print("Captured total {} episodes".format(episode_index))
                 print("End of log file!")
-            self.commit_episode(self,episode_data)
+                break
+            self.commit_episode(episode_data)
             self.episode=Episode(version=SCHEMA_VERSION)
             self.episode_counter+=1
         self.close()
