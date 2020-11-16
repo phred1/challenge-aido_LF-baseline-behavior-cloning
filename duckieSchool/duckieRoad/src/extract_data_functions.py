@@ -53,14 +53,14 @@ def synchronize_data(df_imgs, df_cmds, bag_ID):
     # initialize a dataframe to append all new values
     synch_data = pd.DataFrame()
     synch_imgs = pd.DataFrame()
+    skip_counter = 0
     first_time = True
 
     # for each omega velocity, find the respective image
     for cmd_index, cmd_time in enumerate(df_cmds['vel_timestamp']):
 
         # we keep only the data for which the duckiebot is moving (we do not want the duckiebot to learn to remain at rest)
-        if ( df_cmds['vel_linear'][cmd_index] != 0) & ( df_cmds['vel_angular'][cmd_index] != 0):
-
+        if ( df_cmds['vel_linear'][cmd_index] != 0) or ( df_cmds['vel_angular'][cmd_index] != 0):
             # find index of image with the closest timestamp to wheels' velocities timestamp
             img_index = ( np.abs( df_imgs['img_timestamp'].values - cmd_time ) ).argmin()
 
@@ -69,6 +69,7 @@ def synchronize_data(df_imgs, df_cmds, bag_ID):
 
                 # if the image appears after the velocity and there is no previous image, then
                 # there is no safe synchronization and the data should not be included
+                skip_counter += 1
                 continue
             else:
 
@@ -102,9 +103,10 @@ def synchronize_data(df_imgs, df_cmds, bag_ID):
                     synch_data = np.vstack((synch_data, temp_data))
                     synch_imgs = np.vstack((synch_imgs, temp_imgs))
 
-
+    print()
     print("Synchronization of {}.bag file is finished. From the initial {} images and {} velocities commands, the extracted "
           "synchronized data are {}.synchronized image are {}.".format(bag_ID, df_imgs.shape[0], df_cmds.shape[0], synch_data.shape[0],synch_imgs.shape[0]))
-
+    print()
+    print("Skipped {} images due to asynchronous".format(skip_counter))
     # return the synchronized data to the main function
     return synch_data, synch_imgs

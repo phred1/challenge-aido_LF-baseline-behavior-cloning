@@ -147,7 +147,6 @@ def main():
 
             # read wheel commands messages
             cmd_msg = cmd.message
-
             # hack to get the timestamp of each image in <float 'secs.nsecs'> format instead of <int 'rospy.rostime.Time'>
             temp_timestamp = ext_car_cmds[num].timestamp
             vel_timestamp = temp_timestamp.secs + temp_timestamp.nsecs * \
@@ -156,15 +155,15 @@ def main():
             temp_df = pd.DataFrame({
                 'vel_timestamp': [vel_timestamp],
                 'vel_linear': [cmd_msg.axes[1]],
-                'vel_angular': [cmd_msg.axes[2]],
+                'vel_angular': [cmd_msg.axes[3]],
             })
-
             if num == 0:
                 df_cmds = temp_df.copy()
             else:
                 df_cmds = df_cmds.append(temp_df, ignore_index=True)
 
         # synchronize data
+        print()
         print("Starting synchronization of data for {} file.".format(file))
 
         temp_synch_data, temp_synch_imgs = synchronize_data(
@@ -174,7 +173,6 @@ def main():
             synch_data = copy(temp_synch_data)
             synch_imgs = copy(temp_synch_imgs)
             first_time = False
-
         else:
             synch_data = np.vstack((synch_data, temp_synch_data))
             synch_imgs = np.vstack((synch_imgs, temp_synch_imgs))
@@ -187,9 +185,10 @@ def main():
             tobelogged_action = np.array([action[2], action[3]])
             print(tobelogged_action)
             tobelogged_image = synch_imgs[i*150:(i+1)*150, :, :]
-            tobelogged_image = cv2.cvtColor(tobelogged_image, cv2.COLOR_BGR2YUV)
+            tobelogged_image = cv2.cvtColor(
+                tobelogged_image, cv2.COLOR_BGR2YUV)
             done = False if (i < synch_data.shape[0]) else True
-            step = Step(tobelogged_image,None,tobelogged_action, done)
+            step = Step(tobelogged_image, None, tobelogged_action, done)
             frank_logger.log(step, None)
     print("Synchronization of all data is finished.\n")
     frank_logger.close()
