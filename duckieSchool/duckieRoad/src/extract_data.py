@@ -183,7 +183,6 @@ def main():
         for i in range(synch_data.shape[0]):
             action = synch_data[i]
             tobelogged_action = np.array([action[2], action[3]])
-            print(tobelogged_action)
             tobelogged_image = synch_imgs[i*150:(i+1)*150, :, :]
             tobelogged_image = cv2.cvtColor(
                 tobelogged_image, cv2.COLOR_BGR2YUV)
