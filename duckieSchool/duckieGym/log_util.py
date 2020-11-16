@@ -48,7 +48,6 @@ class Logger:
     def close(self):
         self._multithreaded_recording.shutdown()
         self._log_file.close()
-        os.chmod(self._log_file.name, 0o444)  # make file read-only after finishing
 
 class SteeringToWheelVelWrapper:
     """ Converts policy that was trained with [velocity|heading] actions to
