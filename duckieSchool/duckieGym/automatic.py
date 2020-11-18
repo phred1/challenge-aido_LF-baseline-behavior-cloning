@@ -13,7 +13,7 @@ import pyglet
 import sys
 import time
 
-from log_util import Logger, SteeringToWheelVelWrapper
+from log_util import Logger
 from log_schema import Episode, Step
 
 from typing import List
