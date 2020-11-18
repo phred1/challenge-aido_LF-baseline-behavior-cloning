@@ -65,9 +65,6 @@ class HumanDriver:
                 x = action[0]
                 z = action[1]
                 canvas = cv2.cvtColor(recorded, cv2.COLOR_BGR2RGB)
-                pwm_left, pwm_right = self.pwm_converter.convert(x, z)
-                print('Linear: ', x, ' Angular: ', z, 'Left PWM: ', round(
-                    pwm_left, 3), ' Right PWM: ', round(pwm_right, 3), ' Reward: ', round(reward, 2))
                 #! Speed bar indicator
                 cv2.rectangle(canvas, (20, 240), (50, int(240-220*x)),
                             (76, 84, 255), cv2.FILLED)
@@ -167,7 +164,6 @@ class HumanDriver:
             z = 0.0
 
         action = np.array([-x, -z])
-        pwm_left, pwm_right = self.pwm_converter.convert(-x, -z)
 
         #! GO! and get next
         # * Observation is 640x480 pixels
