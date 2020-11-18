@@ -7,8 +7,6 @@ This is based on Frank's script to log runs using ground truth
 import argparse
 import cv2
 import gym
-import json
-import logging
 import math
 import numpy as np
 import pyglet
@@ -19,15 +17,10 @@ from log_util import Logger, SteeringToWheelVelWrapper
 from log_schema import Episode, Step
 
 from typing import List
-from threading import Timer
 from gym_duckietown.envs import DuckietownEnv
 
 
 REWARD_INVALID_POSE = -1000
-
-#! PWM Calculator
-pwm_converter = SteeringToWheelVelWrapper()
-
 
 class DataGenerator:
     def __init__(self, env, max_episodes, max_steps, log_file=None, downscale=False):
@@ -196,7 +189,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--steps", default=1000, help="number of steps to record in one batch", type=int
     )
-    parser.add_argument("--nb-episodes", default=1200, type=int)
+    parser.add_argument("--nb-episodes", default=10, type=int)
     parser.add_argument("--logfile", type=str, default=None)
     parser.add_argument("--downscale", action="store_true")
 

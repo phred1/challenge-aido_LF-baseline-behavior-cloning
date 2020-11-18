@@ -14,7 +14,7 @@ import gym
 import numpy as np
 import pyglet
 
-from log_util import Logger, SteeringToWheelVelWrapper
+from log_util import Logger
 from log_schema import Episode, Step
 
 from pyglet.window import key
@@ -31,7 +31,6 @@ class HumanDriver:
         self.episode = 1
         self.max_episodes = max_episodes
         self.filter_bad_data = filter_bad_data
-        self.pwm_converter = SteeringToWheelVelWrapper()
         #! Temporary Variable Setup:
         self.last_reward = 0
         self.playback_buffer = []
