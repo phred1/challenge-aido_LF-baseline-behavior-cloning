@@ -208,12 +208,12 @@ if __name__ == '__main__':
     #! Parser sector:
     parser = argparse.ArgumentParser()
     parser.add_argument('--env-name', default=None)
-    parser.add_argument('--map-name', default='zigzag_dists')
+    parser.add_argument('--map-name', default='loop_pedestrians')
     parser.add_argument('--draw-curve', default=False,
                         help='draw the lane following curve')
     parser.add_argument('--draw-bbox', default=False,
                         help='draw collision detection bounding boxes')
-    parser.add_argument('--domain-rand', default=True,
+    parser.add_argument('--domain-rand', default=False,
                         help='enable domain randomization')
     parser.add_argument('--playback', default=True,
                         help='enable playback after each session')
