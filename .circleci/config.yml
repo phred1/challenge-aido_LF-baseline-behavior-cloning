@@ -21,6 +21,7 @@ jobs:
             dts --set-version daffy
             dts update
             pip3 install -U  "duckietown-docker-utils-daffy>=6.0.55"
+            dts challenges config --docker-username $DOCKER_HUB_USERNAME --docker-password $DOCKER_HUB_PASSWORD
       - run:
           name: Setup token
           # language=bash
@@ -29,7 +30,6 @@ jobs:
             dts tok set ${token_dt1_bea}
             # this does not matter on the staging server
             cd duckieChallenger
-            dts challenges config --docker-username $DOCKER_HUB_USERNAME --docker-username $DOCKER_HUB_PASSWORD
       - run:
           name: "Challenges info"
           # language=bash
