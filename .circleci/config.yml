@@ -20,6 +20,7 @@ jobs:
           command: |
             dts --set-version daffy
             dts update
+            pip3 install -U  "duckietown-docker-utils-daffy>=6.0.55"
       - run:
           name: Setup token
           # language=bash
