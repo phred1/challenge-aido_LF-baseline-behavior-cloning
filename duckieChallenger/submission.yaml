@@ -1,9 +1,9 @@
 protocol: aido2_db18_agent-z2
 challenge: [aido5-LF-sim-validation]
 #challenge: [] # This will submit to all available challenges.
-user-label: "challenge-aido_LF-baseline-behavior-cloning"
+user-label: "baseline-behavior-cloning"
 user-payload:
     features_required:
         gpu: 1
 description: |
-    This is a template for an agent that uses Tensorflow for inference.
+    Behavior cloning baseline.
