@@ -89,8 +89,8 @@ class DuckieChallenger:
 
         # ! LED Commands Sherrif Duck
         grey = RGB(0.0, 0.0, 0.0)
-        red = RGB(255.0, 0.0, 0.0)
-        blue = RGB(0.0, 0.0, 255.0)
+        red = RGB(1.0, 0.0, 0.0)
+        blue = RGB(0.0, 0.0, 1.0)
         led_commands = LEDSCommands(red, grey, blue, red, blue)
 
         # ! Send PWM Command
