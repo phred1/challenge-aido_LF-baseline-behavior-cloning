@@ -2,13 +2,13 @@
 To generate our dataset, we used the logs from this file for the real images:
 [FH_real_ds_1.log] https://udemontreal-my.sharepoint.com/:u:/g/personal/anthony_courchesne_umontreal_ca/EXN3k7Z0VshBu4XZQaEeVOoBQdkjhHXAS8p8BGpQ3ZREmw?e=0fqkLO
 
-Credits to Francois for making the tedious work of collecting those logs!
+Credits to Francois Hebert for making the tedious work of collecting those logs!
 
 For the Real images logs, we used this log file:
 
 [ds_300_150slim_ir_yuv.log](https://udemontreal-my.sharepoint.com/:u:/g/personal/anthony_courchesne_umontreal_ca/EU4kZ4VktRVLsssJ2I81Ka8BAscRdbizPJuIvqG0HDks3w?e=dadOmW)
 
-Credits to Anthony for the logs. 
+Credits to Anthony Courchesne for the logs. 
 
 From those logs, to collect the dataset, simply run the commands:
 From the root of the repo: 
