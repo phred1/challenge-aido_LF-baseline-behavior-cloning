@@ -4,72 +4,59 @@ import splitfolders
 import os
 import re
 from PIL import Image
-# real_train="./real/train/train"
-# sim_train="./sim/train/train"
-# real_val="./real/train/test"
-# sim_val="./sim/train/test"
-# real_test="./sim/test"
-# sim_test="./sim/test"
 
-# real_data_raw = "./real_images/real"
-# sim_data_raw = "./sim_images/sim"
+INPUT_DATASET = "./dataset_raw"
+OUTPUT_DATASET = "./dataset_output"
 
+real="real"
+sim="sim"
+TRAIN_REAL= f"{OUTPUT_DATASET}/train/"[1:]
+TEST_REAL = f"{OUTPUT_DATASET}/test/"[1:]
+TRAIN_SIM = f"{OUTPUT_DATASET}/train/"[1:]
+TEST_SIM = f"{OUTPUT_DATASET}/test/"[1:]
 
 def train_test_split(input_folder, output_folder):
-    splitfolders.ratio(input_folder, output=output_folder, seed=1337, ratio=(.8, 0.1,0.1))
+    splitfolders.ratio(input_folder, output=output_folder, seed=1337, ratio=(.8, .1, .1))
 
-def remove_files():
-    train_real = "/sim2real_quarter/train/images_a"
-    test_real = "/sim2real_quarter/test/images_a"
-    train_sim = "/sim2real_quarter/train/images_b"
-    test_sim = "/sim2real_quarter/test/images_b"
+
+def rename_files_unit_format():
 
     filepath = os.getcwd()
-    files_train_real = os.listdir(filepath + train_real)
-    files_test_real = os.listdir(filepath + test_real)
-    files_train_sim = os.listdir(filepath + train_sim)
-    files_test_sim = os.listdir(filepath + test_sim)
-    files_train_real.sort()
-    files_test_real.sort()
-    files_test_sim.sort()
-    files_train_sim.sort()
-    for file in files_train_real:
-        os.remove(filepath+ train_real + "/" +  file)
-    for file in files_test_real:
-        os.remove(filepath+ test_real + "/" +  file)
-    for file in files_train_sim:
-        os.remove(filepath+ train_sim + "/" + file)
-    for file in files_test_sim:
-        os.remove(filepath+ test_sim + "/" + file)
-
-def rename_files():
-    train_real = "/sim2real_quarter/train/images_a"
-    test_real = "/sim2real_quarter/test/images_a"
-    train_sim = "/sim2real_quarter/train/images_b"
-    test_sim = "/sim2real_quarter/test/images_b"
-
-    filepath = os.getcwd()
-    files_train_real = os.listdir(filepath + train_real)
-    files_test_real = os.listdir(filepath + test_real)
-    files_train_sim = os.listdir(filepath + train_sim)
-    files_test_sim = os.listdir(filepath + test_sim)
+    files_train_real = os.listdir(f"{filepath}{TRAIN_REAL}{real}")
+    files_test_real = os.listdir(f"{filepath}{TEST_REAL}{real}")
+    files_train_sim = os.listdir(f"{filepath}{TRAIN_SIM}{sim}")
+    files_test_sim = os.listdir(f"{filepath}{TEST_SIM}{sim}")
     files_train_real.sort()
     files_test_real.sort()
     files_test_sim.sort()
     files_train_sim.sort()
     
     for file in files_train_real:
-        os.rename(filepath+ train_real + "/" +  file)
+        old_name = f"{filepath}{TRAIN_REAL}{real}/{file}"
+        new_name = f"{filepath}{TRAIN_REAL}images_a/{file}"
+        os.makedirs(os.path.dirname(f"{filepath}{TRAIN_REAL}images_a/"), exist_ok=True)
+        os.rename(old_name, new_name)
+    os.rmdir(f"{filepath}{TRAIN_REAL}{real}/")
     for file in files_test_real:
-        os.rename(filepath+ test_real + "/" +  file)
+        old_name = f"{filepath}{TEST_REAL}{real}/{file}"
+        new_name = f"{filepath}{TEST_REAL}images_a/{file}"
+        os.makedirs(os.path.dirname(f"{filepath}{TEST_REAL}images_a/"), exist_ok=True)
+        os.rename(old_name, new_name)
+    os.rmdir(f"{filepath}{TEST_REAL}{real}/")
     for file in files_train_sim:
-        os.rename(filepath+ train_sim + "/" + file)
+        old_name = f"{filepath}{TRAIN_SIM}{sim}/{file}"
+        new_name = f"{filepath}{TRAIN_SIM}images_b/{file}"
+        os.makedirs(os.path.dirname(f"{filepath}{TRAIN_SIM}images_b/"), exist_ok=True)
+        os.rename(old_name, new_name)
+    os.rmdir(f"{filepath}{TRAIN_SIM}{sim}/")
     for file in files_test_sim:
-        os.rename(filepath+ test_sim + "/" + file)
+        old_name = f"{filepath}{TEST_SIM}{sim}/{file}"
+        new_name = f"{filepath}{TEST_SIM}images_b/{file}"
+        os.makedirs(os.path.dirname(f"{filepath}{TEST_SIM}images_b/"), exist_ok=True)
+        os.rename(old_name, new_name)
+    os.rmdir(f"{filepath}{TEST_SIM}{sim}/")
 
 
 if __name__ == '__main__':
-    input_dataset = "./dataset_input"
-    output_dataset = "./outout_dataset/"
-    train_test_split(input_folder=input_dataset, output_folder=output_dataset)
-    rename_files()
+    train_test_split(input_folder=INPUT_DATASET, output_folder=OUTPUT_DATASET)
+    rename_files_unit_format()

@@ -13,9 +13,9 @@ Credits to Anthony Courchesne for the logs.
 From those logs, to collect the dataset, simply run the commands:
 From the root of the repo: 
 ```
-cd duckieLog
-mkdir dataset/real
-mkdir dataset/sim
+cd duckieLog/
+mkdir dataset_raw/real
+mkdir dataset_raw/sim
 ```
 Before generating the dataset, modify the variable `ENV` in the 
 `util/log_viewer.py`
@@ -35,7 +35,7 @@ python3 util/log_viewer.py --log_name FH_real_ds_1.log
 You should now have two folders with 38751 elements each. This is the dataset we used for our project. 
 
 ## UNIT
-The UNIt dataset is tricky to generate since it requires the files to respect a specific folder structure and needs a train/eval/test split to work. 
+The UNIt dataset is tricky to generate since it requires the files to respect a specific folder structure and needs a train/test split to work. 
 
 This is the desired folder structure:
 
@@ -63,11 +63,12 @@ This is the desired folder structure:
 
 To facilitate the generation of such dataset, the file `train_test_splitter.py` enables a few transformations.
 
-To generate a dataset in the unit format, simply run
+To generate a dataset in the UNIT format, simply run
 
 ```
-python3 train_test_splitter.py  
+python3 util/train_test_splitter.py  
 ```
-This will produce an 80/10/10 train-eval-test split of the dataset and produce the desired folder structure.
+
+This will produce an 80/10 train-test split of the dataset and produce the desired folder structure.
 
 
