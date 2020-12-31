@@ -10,8 +10,7 @@ For the Real images logs, we used this log file:
 
 Credits to Anthony Courchesne for the logs. 
 
-From those logs, to collect the dataset, simply run the commands:
-From the root of the repo: 
+From those logs, to collect the dataset, simply run the following commands at the root of the repo:
 ```
 cd duckieLog/
 mkdir dataset_raw/real
